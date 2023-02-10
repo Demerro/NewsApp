@@ -41,6 +41,7 @@ class ArticlesViewController: UIViewController {
                 }
                 
                 newsView.collectionView.reloadData()
+                newsView.collectionView.refreshControl?.endRefreshing()
             } catch {
                 print(error)
             }
@@ -50,7 +51,7 @@ class ArticlesViewController: UIViewController {
     private func setupPullToRefresh() {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(fetchNews), for: .valueChanged)
-        newsView.collectionView.addSubview(refreshControl)
+        newsView.collectionView.refreshControl = refreshControl
     }
 }
 
