@@ -22,10 +22,12 @@ class ArticlesViewController: UIViewController {
         newsView.collectionView.delegate = self
         newsView.collectionView.dataSource = self
         
+        setupPullToRefresh()
+        
         fetchNews()
     }
     
-    func fetchNews() {
+    @objc private func fetchNews() {
         let newsManager = NewsManager.shared
         
         Task {
@@ -43,6 +45,12 @@ class ArticlesViewController: UIViewController {
                 print(error)
             }
         }
+    }
+    
+    private func setupPullToRefresh() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(fetchNews), for: .valueChanged)
+        newsView.collectionView.addSubview(refreshControl)
     }
 }
 
