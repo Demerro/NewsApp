@@ -1,5 +1,5 @@
 //
-//  ArticlesView.swift
+//  ArticleListView.swift
 //  NewsApp
 //
 //  Created by Nikita Prokhorchuk on 6.02.23.
@@ -7,12 +7,12 @@
 
 import UIKit
 
-class ArticlesView: UIView {
+class ArticleListView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         addSubview(collectionView)
-        collectionView.register(ArticleViewCell.self, forCellWithReuseIdentifier: ArticleViewCell.identifier)
+        collectionView.register(ArticleListViewCell.self, forCellWithReuseIdentifier: ArticleListViewCell.identifier)
     }
     
     required init?(coder: NSCoder) {

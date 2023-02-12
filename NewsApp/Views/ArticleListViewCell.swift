@@ -1,5 +1,5 @@
 //
-//  ArticleViewCell.swift
+//  ArticleListViewCell.swift
 //  NewsApp
 //
 //  Created by Nikita Prokhorchuk on 6.02.23.
@@ -7,9 +7,9 @@
 
 import UIKit
 
-class ArticleViewCell: UICollectionViewCell {
+class ArticleListViewCell: UICollectionViewCell {
     
-    static let identifier = "ArticleCell"
+    static let identifier = "ArticleListCell"
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,10 +37,10 @@ class ArticleViewCell: UICollectionViewCell {
         articleTitle.frame = CGRect(x: 10, y: 20, width: bounds.width - 20, height: bounds.height - watchCounter.bounds.height)
     }
     
-    func configure(with viewModel: ArticleViewModel){
-        articleImageView.setImage(url: viewModel.imageURL)
-        articleTitle.text = viewModel.title
-        watchCounter.text = "\(viewModel.watchCount) views"
+    func configure(with article: Article){
+        articleImageView.setImage(url: URL(string: article.urlToImage!))
+        articleTitle.text = article.title
+        watchCounter.text = "2 views"
     }
     
     private let articleImageView: UIImageView = {
