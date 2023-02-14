@@ -10,8 +10,10 @@ import UIKit
 class ArticleViewController: UIViewController {
     
     private let articleView = ArticleView()
+    private var currentArticle: Article? = nil
     
     init(article: Article) {
+        currentArticle = article
         articleView.configure(with: article)
         super.init(nibName: nil, bundle: nil)
     }
@@ -31,6 +33,12 @@ class ArticleViewController: UIViewController {
     }
     
     @objc private func openFullNews() {
-        print("tapped")
+        guard let articleURL = currentArticle?.url,
+              let url = URL(string: articleURL)
+        else {
+            return
+        }
+        let viewController = ArticleTextViewController(articleURL: url)
+        navigationController?.pushViewController(viewController, animated: true)
     }
 }
