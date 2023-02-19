@@ -37,20 +37,14 @@ class ArticleListViewCell: UICollectionViewCell {
         articleTitle.frame = CGRect(x: 10, y: 20, width: bounds.width - 20, height: bounds.height - watchCounter.bounds.height)
     }
     
-    func configure(with article: Article){
-        articleImageView.setImage(url: URL(string: article.urlToImage!))
-        articleTitle.text = article.title
-        watchCounter.text = "2 views"
-    }
-    
-    private let articleImageView: UIImageView = {
+    let articleImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()
     
-    private let articleTitle: UILabel = {
+    let articleTitle: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .bold)
@@ -58,7 +52,7 @@ class ArticleListViewCell: UICollectionViewCell {
         return label
     }()
     
-    private let watchCounter: UILabel = {
+    let watchCounter: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .bold)
         label.textColor = .white

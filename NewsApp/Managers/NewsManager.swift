@@ -6,20 +6,22 @@
 //
 
 import Foundation
+import CoreData
 
 class NewsManager {
     static let shared = NewsManager()
     
     private init() { }
     
-    func getTopHeadlines() async throws -> News {
+    func getTopHeadlines() async throws -> JSONNews {
         guard let url = URL(string: "\(K.baseURL)/top-headlines?country=us&apiKey=\(K.APIKey)") else {
             throw APIError.invalidURL
         }
         
         let (data, _) = try await URLSession.shared.data(from: url)
         
-        let topHeadlines = try JSONDecoder().decode(News.self, from: data)
+        let topHeadlines = try JSONDecoder().decode(JSONNews.self, from: data)
+        
         return topHeadlines
     }
 }

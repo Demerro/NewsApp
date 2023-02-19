@@ -58,26 +58,14 @@ class ArticleView: UIView {
         articleImageView.layer.masksToBounds = true
     }
     
-    func configure(with article: Article) {
-        articleImageView.setImage(url: URL(string: article.urlToImage!))
-        articleTitle.text = article.title
-        articleDescription.text = article.description
-        articleSource.text = "- \(article.source.name)"
-        
-        let date = ISO8601DateFormatter().date(from: article.publishedAt)!
-        articleDate.text = "\(date.description(with: .current))"
-        
-        fullTextButton.setTitle(article.url, for: .normal)
-    }
-    
-    private let articleImageView: UIImageView = {
+    let articleImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let articleTitle: UILabel = {
+    let articleTitle: UILabel = {
         let label = UILabel()
         label.font = .boldSystemFont(ofSize: 20)
         label.numberOfLines = 0
@@ -86,7 +74,7 @@ class ArticleView: UIView {
         return label
     }()
     
-    private let articleDescription: UILabel = {
+    let articleDescription: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 18, weight: .regular)
         label.numberOfLines = 0
@@ -94,7 +82,7 @@ class ArticleView: UIView {
         return label
     }()
     
-    private let articleSource: UILabel = {
+    let articleSource: UILabel = {
         let label = UILabel()
         label.font = .italicSystemFont(ofSize: 17)
         label.numberOfLines = 0
@@ -102,7 +90,7 @@ class ArticleView: UIView {
         return label
     }()
     
-    private let articleDate: UILabel = {
+    let articleDate: UILabel = {
         let label = UILabel()
         label.font = .italicSystemFont(ofSize: 17)
         label.numberOfLines = 0

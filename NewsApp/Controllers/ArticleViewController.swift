@@ -10,11 +10,10 @@ import UIKit
 class ArticleViewController: UIViewController {
     
     private let articleView = ArticleView()
-    private var currentArticle: Article? = nil
+    private var currentArticle: Article?
     
     init(article: Article) {
         currentArticle = article
-        articleView.configure(with: article)
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -29,6 +28,21 @@ class ArticleViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configureArticle()
+    }
+    
+    func configureArticle() {
+        guard let article = currentArticle else { return }
+        
+        articleView.articleImageView.setImage(url: URL(string: article.urlToImage!))
+        articleView.articleTitle.text = article.title
+        articleView.articleDescription.text = article.articleDescription
+        articleView.articleSource.text = "- \(article.sourceName!)"
+        
+        let date = ISO8601DateFormatter().date(from: article.publishedAt!)!
+        articleView.articleDate.text = "\(date.description(with: .current))"
+        
+        articleView.fullTextButton.setTitle(article.url, for: .normal)
         articleView.fullTextButton.addTarget(self, action: #selector(openFullNews), for: .touchUpInside)
     }
     

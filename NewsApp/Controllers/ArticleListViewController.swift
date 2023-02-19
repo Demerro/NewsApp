@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 class ArticleListViewController: UIViewController {
     
@@ -24,27 +25,47 @@ class ArticleListViewController: UIViewController {
         
         setupPullToRefresh()
         
-        fetchNews()
+        loadNews()
     }
     
     @objc private func fetchNews() {
         let newsManager = NewsManager.shared
+        let dataStoreManager = DataStoreManager.shared
+        
+        let articleFactory = ArticleFactory()
         
         Task {
             do {
-                articles = try await newsManager.getTopHeadlines().articles.compactMap {
-                    if $0.urlToImage == nil {
-                        return nil
-                    }
-                    
-                    return $0
+                let news = try await newsManager.getTopHeadlines()
+                articles = news.articles.map {
+                    articleFactory.makeArticle(from: $0)
                 }
                 
                 articleListView.collectionView.reloadData()
                 articleListView.collectionView.refreshControl?.endRefreshing()
+                
+                dataStoreManager.saveContext()
             } catch {
                 print(error)
             }
+        }
+    }
+    
+    private func loadNews() {
+        let dataStoreManager = DataStoreManager.shared
+        let model = dataStoreManager.persistentContainer.managedObjectModel
+        let context = dataStoreManager.persistentContainer.viewContext
+        let fetchRequest = model.fetchRequestTemplate(forName: "AllArticles")!
+        
+        do {
+            articles = try context.fetch(fetchRequest).compactMap {
+                guard let article = $0 as? Article else { return nil }
+                return article
+            }
+            
+            articleListView.collectionView.reloadData()
+        } catch {
+            print(error)
         }
     }
     
@@ -52,6 +73,13 @@ class ArticleListViewController: UIViewController {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(fetchNews), for: .valueChanged)
         articleListView.collectionView.refreshControl = refreshControl
+    }
+    
+    private func increaseViews(at path: IndexPath) {
+        let dataStoreManager = DataStoreManager.shared
+        
+        articles[path.row].views += 1
+        dataStoreManager.saveContext()
     }
 }
 
@@ -62,8 +90,11 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
+        let article = articles[indexPath.row]
         
-        cell.configure(with: articles[indexPath.row])
+        cell.articleImageView.setImage(url: URL(string: article.urlToImage!))
+        cell.articleTitle.text = article.title
+        cell.watchCounter.text = "\(article.views) views"
         
         return cell
     }
@@ -73,6 +104,9 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
         
         let viewController = ArticleViewController(article: articles[indexPath.row])
         navigationController?.pushViewController(viewController, animated: true)
+        
+        increaseViews(at: indexPath)
+        collectionView.reloadItems(at: [indexPath])
     }
 }
 
