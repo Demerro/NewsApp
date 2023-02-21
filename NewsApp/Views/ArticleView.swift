@@ -13,38 +13,36 @@ class ArticleView: UIView {
         
         backgroundColor = .systemBackground
         
-        addSubview(articleImageView)
-        addSubview(articleTitle)
-        addSubview(articleDescription)
-        addSubview(articleSource)
-        addSubview(articleDate)
-        addSubview(fullTextButton)
+        addSubview(scrollView)
+        scrollView.addSubview(stackView)
+        
+        stackView.addArrangedSubview(articleImageView)
+        stackView.addArrangedSubview(articleTitle)
+        stackView.addArrangedSubview(articleDescription)
+        stackView.addArrangedSubview(articleSource)
+        stackView.addArrangedSubview(articleDate)
+        stackView.addArrangedSubview(fullTextButton)
         
         addConstraints([
-            articleImageView.leftAnchor.constraint(equalTo: leftAnchor, constant: 10),
-            articleImageView.rightAnchor.constraint(equalTo: rightAnchor, constant: -10),
-            articleImageView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-            articleImageView.heightAnchor.constraint(equalToConstant: 200),
-            
-            articleTitle.topAnchor.constraint(equalTo: articleImageView.bottomAnchor, constant: 20),
-            articleTitle.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            articleTitle.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            articleDescription.topAnchor.constraint(equalTo: articleTitle.bottomAnchor, constant: 20),
-            articleDescription.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            articleDescription.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            articleSource.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            articleSource.topAnchor.constraint(equalTo: articleDescription.bottomAnchor, constant: 10),
-            
-            articleDate.topAnchor.constraint(equalTo: articleSource.bottomAnchor, constant: 10),
-            articleDate.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            articleDate.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
-            
-            fullTextButton.topAnchor.constraint(equalTo: articleDate.bottomAnchor),
-            fullTextButton.widthAnchor.constraint(equalTo: widthAnchor, constant: -20),
-            fullTextButton.heightAnchor.constraint(equalToConstant: 100)
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
+        
+        scrollView.addConstraints([
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        ])
+        
+        addConstraints([
+            stackView.widthAnchor.constraint(equalTo: widthAnchor, constant: -20),
+            stackView.centerXAnchor.constraint(equalTo: centerXAnchor)
+        ])
+        
+        stackView.addConstraint(articleImageView.heightAnchor.constraint(equalToConstant: 200))
     }
     
     required init?(coder: NSCoder) {
@@ -57,6 +55,20 @@ class ArticleView: UIView {
         articleImageView.layer.cornerRadius = 10
         articleImageView.layer.masksToBounds = true
     }
+    
+    private let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
     
     let articleImageView: UIImageView = {
         let imageView = UIImageView()
