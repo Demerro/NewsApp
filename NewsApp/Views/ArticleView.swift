@@ -24,10 +24,11 @@ class ArticleView: UIView {
         stackView.addArrangedSubview(fullTextButton)
         
         addConstraints([
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
             scrollView.topAnchor.constraint(equalTo: topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: widthAnchor, constant: -20)
         ])
         
         scrollView.addConstraints([
@@ -35,11 +36,6 @@ class ArticleView: UIView {
             stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
-        ])
-        
-        addConstraints([
-            stackView.widthAnchor.constraint(equalTo: widthAnchor, constant: -20),
-            stackView.centerXAnchor.constraint(equalTo: centerXAnchor)
         ])
         
         stackView.addConstraint(articleImageView.heightAnchor.constraint(equalToConstant: 200))
