@@ -32,7 +32,7 @@ class ArticleListViewController: UIViewController {
         let newsManager = NewsManager.shared
         let dataStoreManager = DataStoreManager.shared
         
-        let articleFactory = ArticleFactory()
+        let articleFactory = ArticleFactory(objectContext: dataStoreManager.persistentContainer.viewContext)
         
         Task {
             do {

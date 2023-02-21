@@ -5,14 +5,18 @@
 //  Created by Nikita Prokhorchuk on 19.02.23.
 //
 
-import Foundation
+import CoreData
 
 class ArticleFactory {
     
-    private let dataStoreManager = DataStoreManager.shared
+    let context: NSManagedObjectContext
+    
+    init(objectContext: NSManagedObjectContext) {
+        context = objectContext
+    }
     
     func makeArticle(from jsonArticle: JSONArticle) -> Article {
-        let article = Article(context: dataStoreManager.persistentContainer.viewContext)
+        let article = Article(context: context)
         
         article.setValue(jsonArticle.title, forKey: "title")
         article.setValue(jsonArticle.description, forKey: "articleDescription")

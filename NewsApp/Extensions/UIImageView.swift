@@ -9,7 +9,10 @@ import UIKit
 
 extension UIImageView {
     func setImage(url: URL?) {
-        guard let url = url else { return }
+        guard let url = url else {
+            assertionFailure("Unable to set image. URL is nil.")
+            return
+        }
         
         Task {
             let (data, _) = try await URLSession.shared.data(from: url)
