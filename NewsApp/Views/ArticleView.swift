@@ -54,6 +54,7 @@ class ArticleView: UIView {
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = true
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
