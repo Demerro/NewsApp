@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import CoreData
 
 class ArticleListViewController: UIViewController {
     
@@ -26,29 +25,26 @@ class ArticleListViewController: UIViewController {
         setupPullToRefresh()
         
         loadNews()
+        fetchNews()
     }
     
     @objc private func fetchNews() {
         let newsManager = NewsManager.shared
-        let dataStoreManager = DataStoreManager.shared
-        
-        let articleFactory = ArticleFactory(objectContext: dataStoreManager.persistentContainer.viewContext)
+        let articleFactory = ArticleFactory()
         
         Task {
             do {
-                let news = try await newsManager.getTopHeadlines()
-                articles = news.articles.map {
+                let news = try await newsManager.getNews()
+                articles = news.articles.compactMap {
                     articleFactory.makeArticle(from: $0)
                 }
                 
                 articleListView.collectionView.reloadData()
-                articleListView.collectionView.refreshControl?.endRefreshing()
-                
-                dataStoreManager.saveContext()
             } catch {
                 print(error)
             }
         }
+        articleListView.collectionView.refreshControl?.endRefreshing()
     }
     
     private func loadNews() {

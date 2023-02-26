@@ -9,14 +9,14 @@ import CoreData
 
 class ArticleFactory {
     
-    let context: NSManagedObjectContext
+    private let dataManager = DataStoreManager.shared
     
-    init(objectContext: NSManagedObjectContext) {
-        context = objectContext
-    }
-    
-    func makeArticle(from jsonArticle: JSONArticle) -> Article {
-        let article = Article(context: context)
+    func makeArticle(from jsonArticle: JSONArticle) -> Article? {
+        if jsonArticle.urlToImage == nil {
+            return nil
+        }
+        
+        let article = Article(context: dataManager.persistentContainer.viewContext)
         
         article.setValue(jsonArticle.title, forKey: "title")
         article.setValue(jsonArticle.description, forKey: "articleDescription")
@@ -24,6 +24,8 @@ class ArticleFactory {
         article.setValue(jsonArticle.url, forKey: "url")
         article.setValue(jsonArticle.urlToImage, forKey: "urlToImage")
         article.setValue(jsonArticle.source.name, forKey: "sourceName")
+        
+        dataManager.saveContext()
         
         return article
     }
