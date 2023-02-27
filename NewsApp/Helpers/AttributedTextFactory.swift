@@ -13,12 +13,12 @@ class AttributedTextFactory {
     ///     - text: Text that will appear as a link.
     /// - Returns: NSAttributedString which should look like default link.
     func makeLinkText(from text: String) -> NSAttributedString {
-        let attributetString = NSMutableAttributedString(string: text)
+        let attributedString = NSMutableAttributedString(string: text)
         let linkAttributes = [
             NSAttributedString.Key.link: true,
             NSAttributedString.Key.underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue)
         ]
-        attributetString.setAttributes(linkAttributes, range: NSRange(location: 0, length: text.count))
-        return attributetString
+        attributedString.setAttributes(linkAttributes, range: NSRange(location: 0, length: text.count))
+        return attributedString
     }
 }
