@@ -11,6 +11,7 @@ class ArticleListViewController: UIViewController {
     
     private let articleListView = ArticleListView()
     private var articles = [Article]()
+    private var isPaginating = false
     
     override func loadView() {
         view = articleListView
@@ -25,26 +26,48 @@ class ArticleListViewController: UIViewController {
         setupPullToRefresh()
         
         loadNews()
-        fetchNews()
+        refreshNews()
     }
     
-    @objc private func fetchNews() {
-        let newsManager = NewsManager.shared
-        let articleFactory = ArticleFactory()
-        
+    @objc private func refreshNews() {
         Task {
-            do {
-                let news = try await newsManager.getNews()
-                articles = news.articles.compactMap {
-                    articleFactory.makeArticle(from: $0)
-                }
-                
-                articleListView.collectionView.reloadData()
-            } catch {
-                print(error)
-            }
+            articles = await fetchArticles()
+            
+            articleListView.collectionView.reloadData()
+            articleListView.collectionView.refreshControl?.endRefreshing()
         }
-        articleListView.collectionView.refreshControl?.endRefreshing()
+    }
+    
+    private func addNews() {
+        Task {
+            articles += await fetchArticles()
+            
+            articleListView.collectionView.reloadData()
+            isPaginating = false
+        }
+    }
+    
+    private func fetchArticles() async -> [Article] {
+        isPaginating = true
+        
+        let newsManager = NewsManager.shared
+        let context = DataStoreManager.shared.persistentContainer.viewContext
+        let articleFactory = ArticleFactory(objectContext: context)
+        
+        do {
+            let topic = ["crime", "bitcoin", "war", "finance", "politics"].randomElement()!
+            let articles = try await newsManager.getNews(about: topic).articles.compactMap {
+                articleFactory.makeArticle(from: $0)
+            }
+            
+            isPaginating = false
+            return articles
+        } catch {
+            print("Error when fetching data from API: \(error)")
+        }
+        
+        isPaginating = false
+        return []
     }
     
     private func loadNews() {
@@ -54,20 +77,17 @@ class ArticleListViewController: UIViewController {
         let fetchRequest = model.fetchRequestTemplate(forName: "AllArticles")!
         
         do {
-            articles = try context.fetch(fetchRequest).compactMap {
-                guard let article = $0 as? Article else { return nil }
-                return article
-            }
+            articles = try context.fetch(fetchRequest).map { $0 as! Article }
             
             articleListView.collectionView.reloadData()
         } catch {
-            print(error)
+            print("Error when loading data from database: \(error)")
         }
     }
     
     private func setupPullToRefresh() {
         let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(fetchNews), for: .valueChanged)
+        refreshControl.addTarget(self, action: #selector(refreshNews), for: .valueChanged)
         articleListView.collectionView.refreshControl = refreshControl
     }
     
@@ -103,6 +123,17 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
         
         increaseViews(at: indexPath)
         collectionView.reloadItems(at: [indexPath])
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        guard !isPaginating else { return }
+        
+        let position = scrollView.contentOffset.y
+        let collectionViewPosition = articleListView.collectionView.contentSize.height - scrollView.frame.height - 100
+        
+        if position > collectionViewPosition {
+            addNews()
+        }
     }
 }
 
