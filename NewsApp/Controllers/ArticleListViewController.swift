@@ -55,7 +55,7 @@ class ArticleListViewController: UIViewController {
         let articleFactory = ArticleFactory(objectContext: context)
         
         do {
-            let topic = ["crime", "bitcoin", "war", "finance", "politics"].randomElement()!
+            let topic = ["crime", "bitcoin", "war", "finance", "politics", "weather"].randomElement()!
             let articles = try await newsManager.getNews(about: topic).articles.compactMap {
                 articleFactory.makeArticle(from: $0)
             }
