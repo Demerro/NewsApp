@@ -63,6 +63,7 @@ class ArticleListViewController: UIViewController {
             isPaginating = false
             return articles
         } catch {
+            showAlert(message: error.localizedDescription)
             print("Error when fetching data from API: \(error)")
         }
         
@@ -81,6 +82,7 @@ class ArticleListViewController: UIViewController {
             
             articleListView.collectionView.reloadData()
         } catch {
+            showAlert(message: error.localizedDescription)
             print("Error when loading data from database: \(error)")
         }
     }
@@ -96,6 +98,12 @@ class ArticleListViewController: UIViewController {
         
         articles[path.row].views += 1
         dataStoreManager.saveContext()
+    }
+    
+    private func showAlert(message: String) {
+        let alert = UIAlertController(title: "Something went wrong", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        self.present(alert, animated: true)
     }
 }
 
