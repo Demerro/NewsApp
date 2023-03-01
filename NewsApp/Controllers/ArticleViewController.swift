@@ -32,7 +32,7 @@ class ArticleViewController: UIViewController {
     }
     
     func configureArticle() {
-        guard let article = currentArticle else { preconditionFailure("Article can't be nil, but nil found.") }
+        guard let article = currentArticle else { fatalError("Article can't be nil, but nil found.") }
         
         articleView.articleImageView.setImage(url: URL(string: article.urlToImage!))
         articleView.articleTitle.text = article.title
