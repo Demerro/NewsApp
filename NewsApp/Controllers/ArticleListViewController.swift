@@ -88,7 +88,11 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
         let article = articles[indexPath.row]
         
-        cell.articleImageView.setImage(url: URL(string: article.urlToImage ?? ""))
+        if let urlString = article.urlToImage,
+           let url = URL(string: urlString) {
+            cell.articleImageView.setImage(url: url)
+        }
+        
         cell.articleTitle.text = article.title
         cell.watchCounter.text = "0 views"
         

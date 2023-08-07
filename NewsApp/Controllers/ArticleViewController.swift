@@ -34,7 +34,11 @@ class ArticleViewController: UIViewController {
     func configureArticle() {
         guard let article = currentArticle else { fatalError("Article can't be nil, but nil found.") }
         
-        articleView.articleImageView.setImage(url: URL(string: article.urlToImage!))
+        if let urlString = article.urlToImage,
+           let url = URL(string: urlString) {
+            articleView.articleImageView.setImage(url: url)
+        }
+        
         articleView.articleTitle.text = article.title
         articleView.articleDescription.text = article.description
         articleView.articleSource.text = "- \(article.source.name)"

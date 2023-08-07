@@ -23,7 +23,7 @@
 		69BA30222990FF630041215E /* News.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA30212990FF630041215E /* News.swift */; };
 		69BA3026299105940041215E /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA3025299105940041215E /* ArticleListView.swift */; };
 		69BA302829914E9C0041215E /* ArticleListViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA302729914E9C0041215E /* ArticleListViewCell.swift */; };
-		69BA302B2991524F0041215E /* UIImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA302A2991524F0041215E /* UIImageView.swift */; };
+		69BA302B2991524F0041215E /* UIImageView + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA302A2991524F0041215E /* UIImageView + Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,7 +45,7 @@
 		69BA30212990FF630041215E /* News.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = News.swift; sourceTree = "<group>"; };
 		69BA3025299105940041215E /* ArticleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListView.swift; sourceTree = "<group>"; };
 		69BA302729914E9C0041215E /* ArticleListViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListViewCell.swift; sourceTree = "<group>"; };
-		69BA302A2991524F0041215E /* UIImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageView.swift; sourceTree = "<group>"; };
+		69BA302A2991524F0041215E /* UIImageView + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView + Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,7 +151,7 @@
 		69BA3029299152410041215E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				69BA302A2991524F0041215E /* UIImageView.swift */,
+				69BA302A2991524F0041215E /* UIImageView + Extensions.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -229,7 +229,7 @@
 				69249CF9299A92BF00A76303 /* ArticleTextViewController.swift in Sources */,
 				69BA301E2990FE320041215E /* Constants.swift in Sources */,
 				6924754C2997C19300CC7DA1 /* ArticleViewController.swift in Sources */,
-				69BA302B2991524F0041215E /* UIImageView.swift in Sources */,
+				69BA302B2991524F0041215E /* UIImageView + Extensions.swift in Sources */,
 				69BA302829914E9C0041215E /* ArticleListViewCell.swift in Sources */,
 				69BA3026299105940041215E /* ArticleListView.swift in Sources */,
 				69BA301B2990FCB90041215E /* NewsManager.swift in Sources */,
