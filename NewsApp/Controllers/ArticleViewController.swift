@@ -36,10 +36,10 @@ class ArticleViewController: UIViewController {
         
         articleView.articleImageView.setImage(url: URL(string: article.urlToImage!))
         articleView.articleTitle.text = article.title
-        articleView.articleDescription.text = article.articleDescription
-        articleView.articleSource.text = "- \(article.sourceName!)"
+        articleView.articleDescription.text = article.description
+        articleView.articleSource.text = "- \(article.source.name)"
         
-        let date = ISO8601DateFormatter().date(from: article.publishedAt!)!
+        let date = ISO8601DateFormatter().date(from: article.publishedAt)!
         articleView.articleDate.text = "\(date.description(with: .current))"
         
         articleView.fullTextButton.setTitle(article.url, for: .normal)

@@ -1,18 +1,18 @@
 //
-//  JSONNews.swift
+//  News.swift
 //  NewsApp
 //
 //  Created by Nikita Prokhorchuk on 6.02.23.
 //
 
-struct JSONNews: Decodable {
+struct News: Decodable {
     let status: String
     let totalResults: Int
-    let articles: [JSONArticle]
+    let articles: [Article]
 }
 
-struct JSONArticle: Decodable {
-    let source: JSONSource
+struct Article: Decodable {
+    let source: Source
     let title: String
     let description: String?
     let url: String
@@ -20,6 +20,6 @@ struct JSONArticle: Decodable {
     let publishedAt: String
 }
 
-struct JSONSource: Decodable {
+struct Source: Decodable {
     let name: String
 }

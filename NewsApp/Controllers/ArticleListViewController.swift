@@ -25,7 +25,6 @@ class ArticleListViewController: UIViewController {
         
         setupPullToRefresh()
         
-        loadNews()
         refreshNews()
     }
     
@@ -51,53 +50,26 @@ class ArticleListViewController: UIViewController {
         isPaginating = true
         
         let newsManager = NewsManager.shared
-        let context = DataStoreManager.shared.persistentContainer.viewContext
-        let articleFactory = ArticleFactory(objectContext: context)
         
         do {
             let topic = ["crime", "bitcoin", "war", "finance", "politics", "weather"].randomElement()!
-            let articles = try await newsManager.getNews(about: topic).articles.compactMap {
-                articleFactory.makeArticle(from: $0)
-            }
+            let articles = try await newsManager.getNews(about: topic).articles
             
             isPaginating = false
             return articles
         } catch {
             showAlert(message: error.localizedDescription)
-            print("Error when fetching data from API: \(error)")
+            dump("Error when fetching data from API: \(error)")
         }
         
         isPaginating = false
         return []
     }
     
-    private func loadNews() {
-        let dataStoreManager = DataStoreManager.shared
-        let model = dataStoreManager.persistentContainer.managedObjectModel
-        let context = dataStoreManager.persistentContainer.viewContext
-        let fetchRequest = model.fetchRequestTemplate(forName: "AllArticles")!
-        
-        do {
-            articles = try context.fetch(fetchRequest).map { $0 as! Article }
-            
-            articleListView.collectionView.reloadData()
-        } catch {
-            showAlert(message: error.localizedDescription)
-            print("Error when loading data from database: \(error)")
-        }
-    }
-    
     private func setupPullToRefresh() {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshNews), for: .valueChanged)
         articleListView.collectionView.refreshControl = refreshControl
-    }
-    
-    private func increaseViews(at path: IndexPath) {
-        let dataStoreManager = DataStoreManager.shared
-        
-        articles[path.row].views += 1
-        dataStoreManager.saveContext()
     }
     
     private func showAlert(message: String) {
@@ -116,9 +88,9 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
         let article = articles[indexPath.row]
         
-        cell.articleImageView.setImage(url: URL(string: article.urlToImage!))
+        cell.articleImageView.setImage(url: URL(string: article.urlToImage ?? ""))
         cell.articleTitle.text = article.title
-        cell.watchCounter.text = "\(article.views) views"
+        cell.watchCounter.text = "0 views"
         
         return cell
     }
@@ -129,7 +101,6 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
         let viewController = ArticleViewController(article: articles[indexPath.row])
         navigationController?.pushViewController(viewController, animated: true)
         
-        increaseViews(at: indexPath)
         collectionView.reloadItems(at: [indexPath])
     }
     
