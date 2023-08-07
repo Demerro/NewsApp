@@ -28,7 +28,7 @@ class ArticleListViewController: UIViewController {
         refreshNews()
     }
     
-    @objc private func refreshNews() {
+    private func refreshNews() {
         Task {
             articles = await fetchArticles()
             
@@ -68,7 +68,10 @@ class ArticleListViewController: UIViewController {
     
     private func setupPullToRefresh() {
         let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshNews), for: .valueChanged)
+        refreshControl.addAction(UIAction { [weak self] _ in
+            self?.refreshNews()
+        }, for: .valueChanged)
+        
         articleListView.collectionView.refreshControl = refreshControl
     }
     

@@ -47,10 +47,12 @@ class ArticleViewController: UIViewController {
         articleView.articleDate.text = "\(date.description(with: .current))"
         
         articleView.fullTextButton.setTitle(article.url, for: .normal)
-        articleView.fullTextButton.addTarget(self, action: #selector(openFullNews), for: .touchUpInside)
+        articleView.fullTextButton.addAction(UIAction { [weak self] _ in
+            self?.openFullNews()
+        }, for: .touchUpInside)
     }
     
-    @objc private func openFullNews() {
+    private func openFullNews() {
         guard let articleURL = currentArticle?.url,
               let url = URL(string: articleURL)
         else {
