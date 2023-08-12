@@ -75,9 +75,27 @@ class ArticleListViewController: UIViewController {
             
             isPaginating = false
             return articles
+        } catch let NetworkError.clientOrTransport(error) {
+            showAlert(message: "Client or transport error occurred.")
+            dump(error)
+        } catch let NetworkError.clientOrTransportSpecific(urlError) {
+            showAlert(message: urlError.localizedDescription)
+            dump(urlError)
+        } catch let NetworkError.server(response) {
+            showAlert(message: "Server error occurred.")
+            dump(response)
+        } catch NetworkError.invalidURL {
+            showAlert(message: "Invalid URL used to fetch news.")
+            dump("Invalid URL")
+        } catch NetworkError.noData {
+            showAlert(message: "Can't parse server response.")
+            dump("No data")
+        } catch NetworkError.unknown {
+            showAlert(message: "Unknown error occurred.")
+            dump("Unknown error")
         } catch {
             showAlert(message: error.localizedDescription)
-            dump("Error when fetching data from API: \(error)")
+            dump(error)
         }
         
         isPaginating = false
