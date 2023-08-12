@@ -7,11 +7,30 @@
 
 import UIKit
 
+enum Section {
+    case main
+}
+
 class ArticleListViewController: UIViewController {
     
     private let articleListView = ArticleListView()
-    private var articles = [Article]()
     private var isPaginating = false
+    
+    private lazy var dataSource = UICollectionViewDiffableDataSource<Section, Article>(
+        collectionView: articleListView.collectionView
+    ) { collectionView, indexPath, article in
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
+        
+        if let urlString = article.urlToImage,
+           let url = URL(string: urlString) {
+            cell.articleImageView.setImage(url: url)
+        }
+        
+        cell.articleTitle.text = article.title
+        cell.watchCounter.text = "0 views"
+        
+        return cell
+    }
     
     override func loadView() {
         view = articleListView
@@ -21,7 +40,6 @@ class ArticleListViewController: UIViewController {
         super.viewDidLoad()
         
         articleListView.collectionView.delegate = self
-        articleListView.collectionView.dataSource = self
         
         setupPullToRefresh()
         
@@ -30,18 +48,18 @@ class ArticleListViewController: UIViewController {
     
     private func refreshNews() {
         Task {
-            articles = await fetchArticles()
+            updateDataSource(with: await fetchArticles())
             
-            articleListView.collectionView.reloadData()
             articleListView.collectionView.refreshControl?.endRefreshing()
         }
     }
     
     private func addNews() {
         Task {
-            articles += await fetchArticles()
+            let articles = await fetchArticles()
+            var snapshot = dataSource.snapshot(for: .main)
+            snapshot.append(articles)
             
-            articleListView.collectionView.reloadData()
             isPaginating = false
         }
     }
@@ -75,40 +93,29 @@ class ArticleListViewController: UIViewController {
         articleListView.collectionView.refreshControl = refreshControl
     }
     
+    private func updateDataSource(with articles: [Article]) {
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Article>()
+        snapshot.appendSections([.main])
+        snapshot.appendItems(articles, toSection: .main)
+        dataSource.apply(snapshot)
+    }
+    
     private func showAlert(message: String) {
         let alert = UIAlertController(title: "Something went wrong", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         self.present(alert, animated: true)
     }
+    
 }
 
-extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return articles.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
-        let article = articles[indexPath.row]
-        
-        if let urlString = article.urlToImage,
-           let url = URL(string: urlString) {
-            cell.articleImageView.setImage(url: url)
-        }
-        
-        cell.articleTitle.text = article.title
-        cell.watchCounter.text = "0 views"
-        
-        return cell
-    }
+extension ArticleListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         
-        let viewController = ArticleViewController(article: articles[indexPath.row])
+        let article = dataSource.snapshot(for: .main).items[indexPath.row]
+        let viewController = ArticleViewController(article: article)
         navigationController?.pushViewController(viewController, animated: true)
-        
-        collectionView.reloadItems(at: [indexPath])
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -121,10 +128,13 @@ extension ArticleListViewController: UICollectionViewDelegate, UICollectionViewD
             addNews()
         }
     }
+    
 }
 
 extension ArticleListViewController: UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width - 20, height: 200)
     }
+    
 }
