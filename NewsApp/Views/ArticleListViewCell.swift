@@ -9,7 +9,7 @@ import UIKit
 
 class ArticleListViewCell: UICollectionViewCell {
     
-    static let identifier = "ArticleListCell"
+    static let identifier = NSStringFromClass(ArticleListViewCell.self)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -37,14 +37,22 @@ class ArticleListViewCell: UICollectionViewCell {
         articleTitle.frame = CGRect(x: 10, y: 20, width: bounds.width - 20, height: bounds.height - watchCounter.bounds.height)
     }
     
-    let articleImageView: UIImageView = {
+    func configure(with article: Article) {
+        if let urlString = article.urlToImage,
+           let url = URL(string: urlString) {
+            articleImageView.setImage(url: url)
+        }
+        articleTitle.text = article.title
+    }
+    
+    private let articleImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         return imageView
     }()
     
-    let articleTitle: UILabel = {
+    private let articleTitle: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 17, weight: .bold)
@@ -52,7 +60,7 @@ class ArticleListViewCell: UICollectionViewCell {
         return label
     }()
     
-    let watchCounter: UILabel = {
+    private let watchCounter: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14, weight: .bold)
         label.textColor = .white

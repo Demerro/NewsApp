@@ -21,13 +21,7 @@ class ArticleListViewController: UIViewController {
     ) { collectionView, indexPath, article in
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
         
-        if let urlString = article.urlToImage,
-           let url = URL(string: urlString) {
-            cell.articleImageView.setImage(url: url)
-        }
-        
-        cell.articleTitle.text = article.title
-        cell.watchCounter.text = "0 views"
+        cell.configure(with: article)
         
         return cell
     }
