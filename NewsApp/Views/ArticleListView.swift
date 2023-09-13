@@ -12,7 +12,6 @@ class ArticleListView: UIView {
         super.init(frame: frame)
         
         addSubview(collectionView)
-        collectionView.register(ArticleListViewCell.self, forCellWithReuseIdentifier: ArticleListViewCell.identifier)
     }
     
     required init?(coder: NSCoder) {
@@ -26,6 +25,8 @@ class ArticleListView: UIView {
     }
     
     let collectionView: UICollectionView = {
-        return UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
+        collectionView.register(ArticleListViewCell.self, forCellWithReuseIdentifier: ArticleListViewCell.identifier)
+        return collectionView
     }()
 }

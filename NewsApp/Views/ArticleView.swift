@@ -16,27 +16,11 @@ class ArticleView: UIView {
         addSubview(scrollView)
         scrollView.addSubview(stackView)
         
-        stackView.addArrangedSubview(articleImageView)
-        stackView.addArrangedSubview(articleTitle)
-        stackView.addArrangedSubview(articleDescription)
-        stackView.addArrangedSubview(articleSource)
-        stackView.addArrangedSubview(articleDate)
-        stackView.addArrangedSubview(fullTextButton)
+        [articleImageView, articleTitle, articleDescription, articleSource, articleDate, fullTextButton]
+            .forEach { stackView.addArrangedSubview($0) }
         
-        addConstraints([
-            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
-            scrollView.topAnchor.constraint(equalTo: topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
-            stackView.widthAnchor.constraint(equalTo: widthAnchor, constant: -20)
-        ])
-        
-        scrollView.addConstraints([
-            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
-        ])
+        setupViewConstraints()
+        setupScrollViewConstraints()
         
         stackView.addConstraint(articleImageView.heightAnchor.constraint(equalToConstant: 200))
     }
@@ -50,6 +34,25 @@ class ArticleView: UIView {
         
         articleImageView.layer.cornerRadius = 10
         articleImageView.layer.masksToBounds = true
+    }
+    
+    private func setupViewConstraints() {
+        addConstraints([
+            scrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
+            scrollView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: 10),
+            scrollView.topAnchor.constraint(equalTo: topAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: bottomAnchor),
+            stackView.widthAnchor.constraint(equalTo: widthAnchor, constant: -20)
+        ])
+    }
+    
+    private func setupScrollViewConstraints() {
+        scrollView.addConstraints([
+            stackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor)
+        ])
     }
     
     private let scrollView: UIScrollView = {

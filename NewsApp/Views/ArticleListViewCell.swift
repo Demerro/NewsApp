@@ -14,9 +14,7 @@ class ArticleListViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        addSubview(articleImageView)
-        addSubview(articleTitle)
-        addSubview(watchCounter)
+        [articleImageView, articleTitle, watchCounter].forEach { addSubview($0) }
         
         layer.cornerRadius = 10
         layer.masksToBounds = true
