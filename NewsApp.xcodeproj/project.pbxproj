@@ -59,6 +59,34 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		695E5D6F2AB2153E007984A7 /* ArticleListScene */ = {
+			isa = PBXGroup;
+			children = (
+				69BA302729914E9C0041215E /* ArticleListViewCell.swift */,
+				69BA3025299105940041215E /* ArticleListView.swift */,
+				69BA30082990FAF60041215E /* ArticleListViewController.swift */,
+			);
+			path = ArticleListScene;
+			sourceTree = "<group>";
+		};
+		695E5D702AB21564007984A7 /* ArticleScene */ = {
+			isa = PBXGroup;
+			children = (
+				6924754D2997C22000CC7DA1 /* ArticleView.swift */,
+				6924754B2997C19300CC7DA1 /* ArticleViewController.swift */,
+			);
+			path = ArticleScene;
+			sourceTree = "<group>";
+		};
+		695E5D712AB2157F007984A7 /* ArticleTextScene */ = {
+			isa = PBXGroup;
+			children = (
+				69249CF6299A921F00A76303 /* ArticleTextView.swift */,
+				69249CF8299A92BF00A76303 /* ArticleTextViewController.swift */,
+			);
+			path = ArticleTextScene;
+			sourceTree = "<group>";
+		};
 		697475DE29993E83001C4D8D /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -86,10 +114,11 @@
 		69BA30032990FAF60041215E /* NewsApp */ = {
 			isa = PBXGroup;
 			children = (
+				695E5D712AB2157F007984A7 /* ArticleTextScene */,
+				695E5D702AB21564007984A7 /* ArticleScene */,
+				695E5D6F2AB2153E007984A7 /* ArticleListScene */,
 				697475DE29993E83001C4D8D /* Helpers */,
 				69BA3029299152410041215E /* Extensions */,
-				69BA3024299105800041215E /* Views */,
-				69BA30232991056D0041215E /* Controllers */,
 				69BA301C2990FE100041215E /* Resources */,
 				69BA30192990FCAC0041215E /* Managers */,
 				69BA30182990FCA20041215E /* Models */,
@@ -125,27 +154,6 @@
 				69BA301F2990FED90041215E /* Errors.swift */,
 			);
 			path = Resources;
-			sourceTree = "<group>";
-		};
-		69BA30232991056D0041215E /* Controllers */ = {
-			isa = PBXGroup;
-			children = (
-				69BA30082990FAF60041215E /* ArticleListViewController.swift */,
-				6924754B2997C19300CC7DA1 /* ArticleViewController.swift */,
-				69249CF8299A92BF00A76303 /* ArticleTextViewController.swift */,
-			);
-			path = Controllers;
-			sourceTree = "<group>";
-		};
-		69BA3024299105800041215E /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				69BA3025299105940041215E /* ArticleListView.swift */,
-				69BA302729914E9C0041215E /* ArticleListViewCell.swift */,
-				6924754D2997C22000CC7DA1 /* ArticleView.swift */,
-				69249CF6299A921F00A76303 /* ArticleTextView.swift */,
-			);
-			path = Views;
 			sourceTree = "<group>";
 		};
 		69BA3029299152410041215E /* Extensions */ = {
