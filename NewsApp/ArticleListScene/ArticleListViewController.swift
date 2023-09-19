@@ -6,25 +6,18 @@
 //
 
 import UIKit
+import Combine
 
-enum Section {
+private enum Section {
     case main
 }
 
-class ArticleListViewController: UIViewController {
+final class ArticleListViewController: UIViewController {
     
     private let articleListView = ArticleListView()
-    private var isPaginating = false
-    
-    private lazy var dataSource = UICollectionViewDiffableDataSource<Section, Article>(
-        collectionView: articleListView.collectionView
-    ) { collectionView, indexPath, article in
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
-        
-        cell.configure(with: article)
-        
-        return cell
-    }
+    private let viewModel = ArticleListViewModel()
+    private var dataSource: UICollectionViewDiffableDataSource<Section, Article>!
+    private var cancellables = Set<AnyCancellable>()
     
     override func loadView() {
         view = articleListView
@@ -33,88 +26,52 @@ class ArticleListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        title = "Articles"
         articleListView.collectionView.delegate = self
-        
-        setupPullToRefresh()
-        
-        refreshNews()
+        setupDataSource()
+        binding()
     }
     
-    private func refreshNews() {
-        Task {
-            updateDataSource(with: await fetchArticles())
+    private func setupDataSource() {
+        dataSource = .init(collectionView: articleListView.collectionView, cellProvider: { collectionView, indexPath, article in
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ArticleListViewCell.identifier, for: indexPath) as! ArticleListViewCell
             
-            articleListView.collectionView.refreshControl?.endRefreshing()
-        }
-    }
-    
-    private func addNews() {
-        Task {
-            let articles = await fetchArticles()
-            var snapshot = dataSource.snapshot(for: .main)
-            snapshot.append(articles)
+            cell.configure(with: article)
             
-            isPaginating = false
-        }
+            return cell
+        })
     }
     
-    private func fetchArticles() async -> [Article] {
-        isPaginating = true
-        
-        let newsManager = NewsManager.shared
-        
-        do {
-            let topic = ["crime", "bitcoin", "war", "finance", "politics", "weather"].randomElement()!
-            let articles = try await newsManager.getNews(about: topic).articles
-            
-            isPaginating = false
-            return articles
-        } catch let NetworkError.clientOrTransport(error) {
-            showAlert(message: "Client or transport error occurred.")
-            dump(error)
-        } catch let NetworkError.clientOrTransportSpecific(urlError) {
-            showAlert(message: urlError.localizedDescription)
-            dump(urlError)
-        } catch let NetworkError.server(response) {
-            showAlert(message: "Server error occurred.")
-            dump(response)
-        } catch NetworkError.invalidURL {
-            showAlert(message: "Invalid URL used to fetch news.")
-            dump("Invalid URL")
-        } catch NetworkError.noData {
-            showAlert(message: "Can't parse server response.")
-            dump("No data")
-        } catch NetworkError.unknown {
-            showAlert(message: "Unknown error occurred.")
-            dump("Unknown error")
-        } catch {
-            showAlert(message: error.localizedDescription)
-            dump(error)
-        }
-        
-        isPaginating = false
-        return []
-    }
-    
-    private func setupPullToRefresh() {
+    private func binding() {
         let refreshControl = UIRefreshControl()
-        refreshControl.addAction(UIAction { [weak self] _ in
-            self?.refreshNews()
-        }, for: .valueChanged)
-        
         articleListView.collectionView.refreshControl = refreshControl
+        refreshControl.publisher(forEvent: .valueChanged)
+            .sink { [viewModel] in viewModel.refreshNews() }
+            .store(in: &cancellables)
+        
+        viewModel.$articles
+            .sink { [weak self] in 
+                self?.updateDataSource(with: $0)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.$errorMessage
+            .sink { [weak self] in
+                if $0 != nil { self?.showAlert(message: $0!) }
+            }
+            .store(in: &cancellables)
     }
     
     private func updateDataSource(with articles: [Article]) {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Article>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(articles, toSection: .main)
+        snapshot.appendItems(articles)
         dataSource.apply(snapshot)
     }
     
     private func showAlert(message: String) {
-        let alert = UIAlertController(title: "Something went wrong", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        let alert = UIAlertController(title: "Error occurred", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
         self.present(alert, animated: true)
     }
     
@@ -131,13 +88,11 @@ extension ArticleListViewController: UICollectionViewDelegate {
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        guard !isPaginating else { return }
-        
         let position = scrollView.contentOffset.y
         let collectionViewPosition = articleListView.collectionView.contentSize.height - scrollView.frame.height - 100
         
         if position > collectionViewPosition {
-            addNews()
+            viewModel.appendNews()
         }
     }
     

@@ -25,7 +25,7 @@ class ArticleListView: UIView {
     }
     
     let collectionView: UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewLayout())
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.register(ArticleListViewCell.self, forCellWithReuseIdentifier: ArticleListViewCell.identifier)
         return collectionView
     }()
