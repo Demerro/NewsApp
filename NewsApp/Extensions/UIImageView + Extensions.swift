@@ -10,7 +10,10 @@ import UIKit
 extension UIImageView {
     func setImage(url: URL) {
         Task {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let config = URLSessionConfiguration.default
+            config.requestCachePolicy = .returnCacheDataElseLoad
+            
+            let (data, _) = try await URLSession(configuration: config).data(from: url)
             self.image = UIImage(data: data)
         }
     }
