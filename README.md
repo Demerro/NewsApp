@@ -27,7 +27,7 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li><a href="#screenshots">Screenshots</a></li>
+    <li><a href="#app-screenshots">App Screenshots</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 </details>
@@ -47,7 +47,7 @@ This is a simple training application using MVVM architecture and UIKit without 
 
 | Article List | Article | Article Full Text |
 | ------- | ------------ | -------- |
-| <img src="images/articleList.png"> | <img src="images/article.png"> | <img src="articleText.png"> |
+| <img src="images/articleList.png"> | <img src="images/article.png"> | <img src="images/articleText.png"> |
 
 <!-- LICENSE -->
 ## License
