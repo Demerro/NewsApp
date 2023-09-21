@@ -35,7 +35,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a simple training application using MVVM architecture and UIKit without third-party libraries. In 2022, it was a test task for an internship at Tinkoff fintech.
+This is a simple training application using MVVM architecture and UIKit without third-party libraries. In 2023, it was a test task for an internship at Tinkoff fintech.
 
 ### Built With
 
