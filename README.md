@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Dewerro/NewsApp">
-    <img src="images/logo.png" alt="Logo" width="100" height="100" style="border-radius:20px">
+    <img src="images/logo.png" alt="Logo" width="100" height="100">
   </a>
 
   <h3 align="center">News App</h3>
