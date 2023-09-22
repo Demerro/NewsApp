@@ -1,5 +1,5 @@
 //
-//  NewsManager.swift
+//  NewsClient.swift
 //  NewsApp
 //
 //  Created by Nikita Prokhorchuk on 6.02.23.
