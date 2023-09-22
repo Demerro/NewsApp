@@ -1,8 +1,8 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  <a href="https://github.com/Dewerro/NewsApp">
+    <img src="images/logo.png" alt="Logo" width="100" height="100">
   </a>
 
   <h3 align="center">News App</h3>
@@ -11,9 +11,9 @@
     UIKit & Combine news application
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
+    <a href="https://github.com/Dewerro/NewsApp/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/Dewerro/NewsApp/issues">Request Feature</a>
   </p>
 </div>
 
@@ -35,7 +35,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a simple training application using MVVM architecture and UIKit without third-party libraries. In 2022, it was a test task for an internship at Tinkoff fintech.
+This is a simple training application using MVVM architecture and UIKit without third-party libraries. In 2023, it was a test task for an internship at Tinkoff fintech.
 
 ### Built With
 
@@ -46,7 +46,7 @@ This is a simple training application using MVVM architecture and UIKit without 
 ### App Screenshots
 
 | Article List | Article | Article Full Text |
-| ------- | ------------ | -------- |
+| ------------ | ------- | ----------------- |
 | <img src="images/articleList.png"> | <img src="images/article.png"> | <img src="images/articleText.png"> |
 
 <!-- LICENSE -->
