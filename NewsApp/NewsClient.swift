@@ -7,8 +7,19 @@
 
 import Foundation
 import Combine
+import OSLog
 
 struct NewsClient {
+    
+    init() {
+        Task {
+            do {
+                try await K.loadAPIKeys()
+            } catch {
+                Logger().error("Failed to load API Keys: \(error)")
+            }
+        }
+    }
     
     enum Error: LocalizedError {
         case clientOrTransport(URLError)
@@ -28,7 +39,6 @@ struct NewsClient {
     }
     
     enum EndPoint {
-        static let APIKey = "" // API key here
         static let baseURL = "https://newsapi.org/v2"
         static let maxArticles = 20
         
@@ -40,7 +50,7 @@ struct NewsClient {
                 let queryItems = [
                     URLQueryItem(name: "q", value: keyword),
                     URLQueryItem(name: "pageSize", value: String(NewsClient.EndPoint.maxArticles)),
-                    URLQueryItem(name: "apiKey", value: NewsClient.EndPoint.APIKey)
+                    URLQueryItem(name: "apiKey", value: K.APIKeys.newsAPIKey)
                 ]
                 
                 var components = URLComponents(string: NewsClient.EndPoint.baseURL + "/everything")!
@@ -57,28 +67,41 @@ struct NewsClient {
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .returnCacheDataElseLoad
         
-        return URLSession(configuration: config).dataTaskPublisher(for: EndPoint.news(keyword).url)
-            .tryMap { data, response in
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    throw NewsClient.Error.unknown
-                }
-                
-                if 500...526 ~= httpResponse.statusCode {
-                    throw NewsClient.Error.server(httpResponse)
-                }
-                
-                return data
-            }
-            .mapError { error -> NewsClient.Error in
-                switch error {
-                case is URLError:
-                    return NewsClient.Error.clientOrTransport(error as! URLError)
-                default:
-                    return error as? NewsClient.Error ?? .unknown
+        return Future { promise in
+            Task {
+                do {
+                    try await K.loadAPIKeys()
+                    promise(.success(Void()))
+                } catch {
+                    assertionFailure("Failed to load API key.")
                 }
             }
-            .decode(type: News.self, decoder: decoder)
-            .eraseToAnyPublisher()
+        }
+        .flatMap {
+            URLSession(configuration: config)
+                .dataTaskPublisher(for: EndPoint.news(keyword).url)
+        }
+        .tryMap { data, response in
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NewsClient.Error.unknown
+            }
+            
+            if 500...526 ~= httpResponse.statusCode {
+                throw NewsClient.Error.server(httpResponse)
+            }
+            
+            return data
+        }
+        .mapError { error -> NewsClient.Error in
+            switch error {
+            case is URLError:
+                return NewsClient.Error.clientOrTransport(error as! URLError)
+            default:
+                return error as? NewsClient.Error ?? .unknown
+            }
+        }
+        .decode(type: News.self, decoder: decoder)
+        .eraseToAnyPublisher()
     }
     
 }
