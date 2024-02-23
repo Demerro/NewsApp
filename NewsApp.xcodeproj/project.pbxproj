@@ -11,7 +11,7 @@
 		6924754E2997C22000CC7DA1 /* ArticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6924754D2997C22000CC7DA1 /* ArticleView.swift */; };
 		69249CF7299A921F00A76303 /* ArticleTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69249CF6299A921F00A76303 /* ArticleTextView.swift */; };
 		69249CF9299A92BF00A76303 /* ArticleTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69249CF8299A92BF00A76303 /* ArticleTextViewController.swift */; };
-		69A87AE02B88E10D00FAFA73 /* API Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 69A87ADE2B88E10D00FAFA73 /* API Keys.plist */; };
+		69A87AE02B88E10D00FAFA73 /* API Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 69A87ADE2B88E10D00FAFA73 /* API Keys.plist */; settings = {ASSET_TAGS = ("API Keys", ); }; };
 		69A87AE12B88E10D00FAFA73 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69A87ADF2B88E10D00FAFA73 /* Constants.swift */; };
 		69BA30052990FAF60041215E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA30042990FAF60041215E /* AppDelegate.swift */; };
 		69BA30072990FAF60041215E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA30062990FAF60041215E /* SceneDelegate.swift */; };
@@ -178,6 +178,9 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				KnownAssetTags = (
+					"API Keys",
+				);
 				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
