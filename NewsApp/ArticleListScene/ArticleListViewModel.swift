@@ -17,9 +17,8 @@ final class ArticleListViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     private var articlePublisher: AnyPublisher<[Article], Error> {
-        return NewsClient().getNews(about: topic.randomElement()!)
+        return NewsClient().getArticles(about: topic.randomElement()!)
             .receive(on: DispatchQueue.main)
-            .map(\.articles)
             .eraseToAnyPublisher()
     }
     

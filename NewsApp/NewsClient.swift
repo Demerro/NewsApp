@@ -61,9 +61,12 @@ struct NewsClient {
         }
     }
     
-    private let decoder = JSONDecoder()
+    private let decoder: JSONDecoder = {
+        $0.dateDecodingStrategy = .iso8601
+        return $0
+    }(JSONDecoder())
     
-    func getNews(about keyword: String) -> AnyPublisher<News, Swift.Error> {
+    func getArticles(about keyword: String) -> AnyPublisher<[Article], Swift.Error> {
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .returnCacheDataElseLoad
         
@@ -101,6 +104,7 @@ struct NewsClient {
             }
         }
         .decode(type: News.self, decoder: decoder)
+        .map(\.articles)
         .eraseToAnyPublisher()
     }
     

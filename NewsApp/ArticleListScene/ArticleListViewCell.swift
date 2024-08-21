@@ -36,8 +36,7 @@ class ArticleListViewCell: UICollectionViewCell {
     }
     
     func configure(with article: Article) {
-        if let urlString = article.urlToImage,
-           let url = URL(string: urlString) {
+        if let url = article.urlToImage {
             articleImageView.setImage(url: url)
         }
         articleTitle.text = article.title

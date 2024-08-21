@@ -32,30 +32,26 @@ class ArticleViewController: UIViewController {
     }
     
     func configureArticle() {
-        guard let article = currentArticle else { fatalError("Article can't be nil, but nil found.") }
+        guard let article = currentArticle else { preconditionFailure("Article can't be nil, but nil found.") }
         
-        if let urlString = article.urlToImage,
-           let url = URL(string: urlString) {
+        if let url = article.urlToImage {
             articleView.articleImageView.setImage(url: url)
         }
         
         articleView.articleTitle.text = article.title
         articleView.articleDescription.text = article.description
-        articleView.articleSource.text = "- \(article.source.name)"
+        articleView.articleSource.text = "- \(article.source)"
         
-        let date = ISO8601DateFormatter().date(from: article.publishedAt)!
-        articleView.articleDate.text = "\(date.description(with: .current))"
+        articleView.articleDate.text = "\(article.publishedDate.description(with: .current))"
         
-        articleView.fullTextButton.setTitle(article.url, for: .normal)
+        articleView.fullTextButton.setTitle(article.url?.absoluteString, for: .normal)
         articleView.fullTextButton.addAction(UIAction { [weak self] _ in
             self?.openFullNews()
         }, for: .touchUpInside)
     }
     
     private func openFullNews() {
-        guard let articleURL = currentArticle?.url,
-              let url = URL(string: articleURL)
-        else {
+        guard let url = currentArticle?.url else {
             assertionFailure("Article URL is nil. Unable to open the full text of the news.")
             return
         }

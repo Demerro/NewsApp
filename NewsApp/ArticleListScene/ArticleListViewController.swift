@@ -95,7 +95,6 @@ extension ArticleListViewController: UICollectionViewDelegate {
             viewModel.appendNews()
         }
     }
-    
 }
 
 extension ArticleListViewController: UICollectionViewDelegateFlowLayout {
