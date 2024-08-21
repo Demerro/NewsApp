@@ -6,22 +6,23 @@
 //
 
 import UIKit
+import WebKit
 
-class ArticleTextViewController: UIViewController {
+final class ArticleTextViewController: UIViewController {
 
-    private let articleTextView = ArticleTextView()
+    let webView = WKWebView()
+    
+    override func loadView() {
+        view = webView
+    }
     
     init(articleURL: URL) {
-        articleTextView.webView.load(URLRequest(url: articleURL))
-        
+        webView.load(URLRequest(url: articleURL))
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func loadView() {
-        view = articleTextView
     }
 }
