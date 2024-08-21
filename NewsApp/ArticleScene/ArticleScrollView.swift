@@ -51,13 +51,13 @@ final class ArticleScrollView: UIScrollView {
         return $0
     }(UILabel(frame: .zero))
     
-    let textView: UITextView = {
+    let textView: UnselectableTappableTextView = {
         $0.backgroundColor = .systemGroupedBackground
         $0.isScrollEnabled = false
-        $0.isEditable = false
         $0.textContainer.lineFragmentPadding = .zero
+        $0.isUserInteractionEnabled = true
         return $0
-    }(UITextView(frame: .zero))
+    }(UnselectableTappableTextView(frame: .zero))
     
     override init(frame: CGRect) {
         super.init(frame: frame)
