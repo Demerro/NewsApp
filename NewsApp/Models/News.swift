@@ -16,7 +16,7 @@ struct Article {
     let source: String
     let title: String
     let description: String
-    let url: URL?
+    let url: URL
     let urlToImage: URL?
     let publishedDate: Date
 }
@@ -29,7 +29,7 @@ extension Article: Decodable {
         title = try container.decode(String.self, forKey: .title)
         description = try container.decode(String.self, forKey: .description)
         url = try container.decode(URL.self, forKey: .url)
-        urlToImage = try container.decode(URL.self, forKey: .urlToImage)
+        urlToImage = try container.decodeIfPresent(URL.self, forKey: .urlToImage)
         publishedDate = try container.decode(Date.self, forKey: .publishedAt)
     }
     

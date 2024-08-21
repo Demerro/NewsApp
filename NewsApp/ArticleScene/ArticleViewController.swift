@@ -7,55 +7,65 @@
 
 import UIKit
 
-class ArticleViewController: UIViewController {
+final class ArticleViewController: UIViewController {
     
-    private let articleView = ArticleView()
-    private var currentArticle: Article?
+    private let articleScrollView = ArticleScrollView()
+    private var article: Article?
     
     init(article: Article) {
-        currentArticle = article
+        self.article = article
         super.init(nibName: nil, bundle: nil)
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     override func loadView() {
-        view = articleView
+        view = articleScrollView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        articleScrollView.textView.delegate = self
         configureArticle()
     }
-    
-    func configureArticle() {
-        guard let article = currentArticle else { preconditionFailure("Article can't be nil, but nil found.") }
-        
-        if let url = article.urlToImage {
-            articleView.articleImageView.setImage(url: url)
-        }
-        
-        articleView.articleTitle.text = article.title
-        articleView.articleDescription.text = article.description
-        articleView.articleSource.text = "- \(article.source)"
-        
-        articleView.articleDate.text = "\(article.publishedDate.description(with: .current))"
-        
-        articleView.fullTextButton.setTitle(article.url?.absoluteString, for: .normal)
-        articleView.fullTextButton.addAction(UIAction { [weak self] _ in
-            self?.openFullNews()
-        }, for: .touchUpInside)
-    }
+}
+
+extension ArticleViewController {
     
     private func openFullNews() {
-        guard let url = currentArticle?.url else {
+        guard let url = article?.url else {
             assertionFailure("Article URL is nil. Unable to open the full text of the news.")
             return
         }
         let viewController = ArticleTextViewController(articleURL: url)
         navigationController?.pushViewController(viewController, animated: true)
+    }
+    
+    private func configureArticle() {
+        guard let article else { preconditionFailure("Article can't be nil, but nil found.") }
+        
+        if let url = article.urlToImage {
+            articleScrollView.articleImageView.setImage(url: url)
+        }
+        
+        articleScrollView.articleTitleLabel.text = article.title
+        articleScrollView.articleDescriptionLabel.text = article.description
+        articleScrollView.articleSourceLabel.text = "- \(article.source)"
+        articleScrollView.articleDateLabel.text = "\(article.publishedDate.description(with: .current))"
+        articleScrollView.textView.attributedText = NSAttributedString(string: article.url.absoluteString, attributes: [
+            .link: article.url.absoluteString,
+            .font: UIFont.preferredFont(forTextStyle: .body)
+        ])
+    }
+}
+
+extension ArticleViewController: UITextViewDelegate {
+    
+    func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
+        openFullNews()
+        return false
     }
 }
