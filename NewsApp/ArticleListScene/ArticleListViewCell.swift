@@ -7,33 +7,49 @@
 
 import UIKit
 
-class ArticleListViewCell: UICollectionViewCell {
+final class ArticleListViewCell: UICollectionViewCell {
     
-    static let identifier = NSStringFromClass(ArticleListViewCell.self)
+    private let articleImageView: UIImageView = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.contentMode = .scaleAspectFill
+        $0.clipsToBounds = true
+        return $0
+    }(UIImageView(frame: .zero))
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        [articleImageView, articleTitle, watchCounter].forEach { addSubview($0) }
-        
-        layer.cornerRadius = 10
-        layer.masksToBounds = true
-    }
+    private let articleTitle: UILabel = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.numberOfLines = 0
+        $0.font = .preferredFont(forTextStyle: .body, compatibleWith: UITraitCollection(legibilityWeight: .bold))
+        $0.textColor = .white
+        return $0
+    }(UILabel(frame: .zero))
     
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+    private let articleImageViewGradientLayer: CAGradientLayer = {
+        $0.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
+        $0.locations = [0, 1]
+        return $0
+    }(CAGradientLayer())
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        
-        articleImageView.frame = bounds
-        articleImageViewGradientLayer.frame = bounds
-        articleImageView.layer.addSublayer(articleImageViewGradientLayer)
-        
-        watchCounter.frame = CGRect(x: 10, y: bounds.height - 30, width: bounds.width - 20, height: 10)
-        articleTitle.frame = CGRect(x: 10, y: 20, width: bounds.width - 20, height: bounds.height - watchCounter.bounds.height)
+        RunLoop.current.add(Timer(timeInterval: 0.0, repeats: false, block: { [self] _ in
+            articleImageViewGradientLayer.frame = articleImageView.frame
+        }), forMode: .common)
     }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupCommon()
+        setupConstraints()
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension ArticleListViewCell {
     
     func configure(with article: Article) {
         if let url = article.urlToImage {
@@ -41,33 +57,32 @@ class ArticleListViewCell: UICollectionViewCell {
         }
         articleTitle.text = article.title
     }
+}
+
+extension ArticleListViewCell {
     
-    private let articleImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.clipsToBounds = true
-        return imageView
-    }()
+    private func setupCommon() {
+        clipsToBounds = true
+        layer.cornerRadius = 10.0
+        
+        articleImageView.layer.addSublayer(articleImageViewGradientLayer)
+        contentView.addSubview(articleImageView)
+        contentView.addSubview(articleTitle)
+    }
     
-    private let articleTitle: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.font = .systemFont(ofSize: 17, weight: .bold)
-        label.textColor = .white
-        return label
-    }()
-    
-    private let watchCounter: UILabel = {
-        let label = UILabel()
-        label.font = .systemFont(ofSize: 14, weight: .bold)
-        label.textColor = .white
-        return label
-    }()
-    
-    private let articleImageViewGradientLayer: CAGradientLayer = {
-        let layer = CAGradientLayer()
-        layer.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
-        layer.locations = [0, 1]
-        return layer
-    }()
+    private func setupConstraints() {
+        let articleTitleTopAnchor = articleTitle.topAnchor.constraint(lessThanOrEqualTo: contentView.topAnchor, constant: 10.0)
+        articleTitleTopAnchor.priority = .defaultLow
+        NSLayoutConstraint.activate([
+            articleImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            articleImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            articleImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            articleImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            articleTitleTopAnchor,
+            articleTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10.0),
+            contentView.trailingAnchor.constraint(equalTo: articleTitle.trailingAnchor, constant: 10.0),
+            contentView.bottomAnchor.constraint(equalTo: articleTitle.bottomAnchor, constant: 10.0),
+        ])
+    }
 }

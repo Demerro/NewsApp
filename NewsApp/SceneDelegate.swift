@@ -7,22 +7,14 @@
 
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
-        guard let scene = (scene as? UIWindowScene) else { return }
-        
-        let window = UIWindow(windowScene: scene)
-        
-        let viewController = ArticleListViewController()
-        let navigationController = UINavigationController(rootViewController: viewController)
-        
-        window.rootViewController = navigationController
-        
-        self.window = window
+        let window = UIWindow(windowScene: scene as! UIWindowScene)
+        window.rootViewController = UINavigationController(rootViewController: ArticleListViewController())
         window.makeKeyAndVisible()
+        self.window = window
     }
 }

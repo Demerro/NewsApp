@@ -19,7 +19,6 @@
 		69BA300E2990FAF70041215E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 69BA300D2990FAF70041215E /* Assets.xcassets */; };
 		69BA301B2990FCB90041215E /* NewsClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA301A2990FCB90041215E /* NewsClient.swift */; };
 		69BA30222990FF630041215E /* News.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA30212990FF630041215E /* News.swift */; };
-		69BA3026299105940041215E /* ArticleListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA3025299105940041215E /* ArticleListView.swift */; };
 		69BA302829914E9C0041215E /* ArticleListViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA302729914E9C0041215E /* ArticleListViewCell.swift */; };
 		69BA302B2991524F0041215E /* UIImageView + Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69BA302A2991524F0041215E /* UIImageView + Extensions.swift */; };
 		69D7E4EB2AB994E00086CBA4 /* ControlPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D7E4EA2AB994E00086CBA4 /* ControlPublisher.swift */; };
@@ -41,7 +40,6 @@
 		69BA30122990FAF70041215E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		69BA301A2990FCB90041215E /* NewsClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsClient.swift; sourceTree = "<group>"; };
 		69BA30212990FF630041215E /* News.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = News.swift; sourceTree = "<group>"; };
-		69BA3025299105940041215E /* ArticleListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListView.swift; sourceTree = "<group>"; };
 		69BA302729914E9C0041215E /* ArticleListViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleListViewCell.swift; sourceTree = "<group>"; };
 		69BA302A2991524F0041215E /* UIImageView + Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView + Extensions.swift"; sourceTree = "<group>"; };
 		69D7E4EA2AB994E00086CBA4 /* ControlPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPublisher.swift; sourceTree = "<group>"; };
@@ -63,7 +61,6 @@
 			isa = PBXGroup;
 			children = (
 				69BA302729914E9C0041215E /* ArticleListViewCell.swift */,
-				69BA3025299105940041215E /* ArticleListView.swift */,
 				69BA30082990FAF60041215E /* ArticleListViewController.swift */,
 				69D7E4EC2AB9951E0086CBA4 /* ArticleListViewModel.swift */,
 			);
@@ -228,7 +225,6 @@
 				69A84CE82C75F5BD00A5C6E3 /* UnselectableTappableTextView.swift in Sources */,
 				69BA302829914E9C0041215E /* ArticleListViewCell.swift in Sources */,
 				69A87AE12B88E10D00FAFA73 /* Constants.swift in Sources */,
-				69BA3026299105940041215E /* ArticleListView.swift in Sources */,
 				69BA301B2990FCB90041215E /* NewsClient.swift in Sources */,
 				69BA30092990FAF60041215E /* ArticleListViewController.swift in Sources */,
 				69BA30052990FAF60041215E /* AppDelegate.swift in Sources */,
