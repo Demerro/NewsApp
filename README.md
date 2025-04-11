@@ -1,55 +1,87 @@
-<!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/Dewerro/NewsApp">
-    <img src="images/logo.png" alt="Logo" width="100" height="100">
-  </a>
+# NewsApp 📰
 
-  <h3 align="center">News App</h3>
+**NewsApp** is a simple iOS application that displays news articles fetched from a remote API. Built with a focus on clean code and modern iOS development practices, it showcases the use of Swift, UIKit, Combine, and URLSession within an MVVM architecture.
 
-  <p align="center">
-    UIKit & Combine news application
-    <br />
-    <br />
-    <a href="https://github.com/Dewerro/NewsApp/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/Dewerro/NewsApp/issues">Request Feature</a>
-  </p>
-</div>
+## Features
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li><a href="#app-screenshots">App Screenshots</a></li>
-    <li><a href="#license">License</a></li>
-  </ol>
-</details>
+- **News List Screen**: Displays a list of news articles fetched from a public API.
+- **Article Screen**: Shows detailed information about a selected news article.
+- **Web View Screen**: Loads the full article in a web view for a seamless reading experience.
+- Real-time data fetching with error handling.
+- Responsive UI built programmatically with UIKit.
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+## Screenshots
 
-This is a simple training application using MVVM architecture and UIKit without third-party libraries. In 2023, it was a test task for an internship at Tinkoff fintech.
-
-### Built With
-
-* UIKit
-* Combine
-* URLSession
-
-### App Screenshots
-
-| Article List | Article | Article Full Text |
-| ------------ | ------- | ----------------- |
+| News List | Article | Article Full Text |
+| --------- | ------- | ----------------- |
 | <img src="images/articleList.png"> | <img src="images/article.png"> | <img src="images/articleText.png"> |
 
-<!-- LICENSE -->
+## Tech Stack
+
+- **Language**: Swift 5.0
+- **Framework**: UIKit (programmatic UI)
+- **Networking**: URLSession
+- **Reactive Programming**: Combine
+- **Architecture**: MVVM (Model-View-ViewModel)
+- **iOS Version**: iOS 14.0+
+
+## Architecture
+
+The app follows the MVVM architecture to ensure separation of concerns and maintainable code:
+
+- **Model**: Represents the data layer, including news article structs and API response models.
+- **View**: UIKit-based views and view controllers that display the UI.
+- **ViewModel**: Handles business logic, communicates with the network layer, and prepares data for the views using Combine publishers.
+
+## Installation
+
+To run **NewsApp** locally, follow these steps:
+
+### Prerequisites
+
+- Xcode 15.0 or later
+- iOS 14.0 or later
+- An active internet connection (for API requests)
+
+### Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Demerro/NewsApp.git
+   cd NewsApp
+   ```
+2. Open the project: Open `NewsApp.xcodeproj` in Xcode.
+3. Get the API key from here: https://newsapi.org
+4. - Create `API Keys.plist` in `NewsApp/Resources/`
+   - Add your key into the property list
+    ```
+    <dict>
+      <key>News API</key>
+      <string>Your news API key</string>
+    </dict>
+    ```
+   - Add on-demand tag `API keys`
+
+5. Build and run:
+     - Select a simulator or connected device.
+     - Press `Cmd + R` to build and run the app.
+
+## Dependencies
+
+The app is dependency-free and uses only native Apple frameworks (UIKit, Combine, WebKit).
+
+## Contributing
+
+Contributions are welcome! To contribute:
+
+- Fork the repository.
+- Create a new branch (`git checkout -b feature/your-feature`).
+- Commit your changes (`git commit -m "Add your feature"`).
+- Push to the branch (`git push origin feature/your-feature`).
+- Open a pull request.
+
+Please ensure your code follows the existing style.
+
 ## License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+This project is licensed under the MIT License. See the `LICENSE.txt` file for details.
