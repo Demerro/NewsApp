@@ -89,6 +89,7 @@ extension ArticleListViewController {
     }
     
     private func showAlert(message: String) {
+        guard presentingViewController == nil else { return }
         let alert = UIAlertController(title: "Error occurred", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
         self.present(alert, animated: true)
@@ -106,13 +107,16 @@ extension ArticleListViewController {
         
         viewModel.$articles
             .sink { [weak self] in
+                refreshControl.endRefreshing()
                 self?.updateDataSource(with: $0.map(\.id))
             }
             .store(in: &cancellables)
         
         viewModel.$errorMessage
+            .compactMap { $0 }
             .sink { [weak self] in
-                if $0 != nil { self?.showAlert(message: $0!) }
+                refreshControl.endRefreshing()
+                self?.showAlert(message: $0)
             }
             .store(in: &cancellables)
     }
