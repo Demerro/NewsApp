@@ -12,6 +12,8 @@ enum K {
     private static let decoder = PropertyListDecoder()
     
     static func loadAPIKeys() async throws {
+        guard APIKeys.newsAPIKey == nil else { return }
+        
         let request = NSBundleResourceRequest(tags: ["API Keys"])
         try await request.beginAccessingResources()
         
@@ -26,13 +28,8 @@ enum K {
     enum APIKeys {
         static fileprivate(set) var storage = [String: String]()
         
-        static var newsAPIKey: String {
-            if let key = storage["News API"] {
-                return key
-            } else {
-                assertionFailure("News API key not found.")
-                return ""
-            }
+        static var newsAPIKey: String? {
+            storage["News API"]
         }
     }
 }

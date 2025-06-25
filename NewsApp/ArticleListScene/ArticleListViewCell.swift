@@ -7,7 +7,9 @@
 
 import UIKit
 
-final class ArticleListViewCell: UICollectionViewCell {
+final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell {
+    
+    var itemIdentifier: ItemIdentifier? = nil
     
     private let articleImageView: UIImageView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
@@ -24,17 +26,17 @@ final class ArticleListViewCell: UICollectionViewCell {
         return $0
     }(UILabel(frame: .zero))
     
-    private let articleImageViewGradientLayer: CAGradientLayer = {
-        $0.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
-        $0.locations = [0, 1]
+    private let gradientView: LayerView<CAGradientLayer> = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.setLayer.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
+        $0.setLayer.locations = [0, 1]
         return $0
-    }(CAGradientLayer())
+    }(LayerView<CAGradientLayer>(frame: .zero))
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        RunLoop.current.add(Timer(timeInterval: 0.0, repeats: false, block: { [self] _ in
-            articleImageViewGradientLayer.frame = articleImageView.frame
-        }), forMode: .common)
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        itemIdentifier = nil
+        articleImageView.image = nil
     }
     
     override init(frame: CGRect) {
@@ -68,8 +70,8 @@ extension ArticleListViewCell {
         clipsToBounds = true
         layer.cornerRadius = 10.0
         
-        articleImageView.layer.addSublayer(articleImageViewGradientLayer)
         contentView.addSubview(articleImageView)
+        contentView.addSubview(gradientView)
         contentView.addSubview(articleTitle)
     }
     
@@ -81,6 +83,11 @@ extension ArticleListViewCell {
             articleImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             articleImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             articleImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            
+            gradientView.topAnchor.constraint(equalTo: contentView.topAnchor),
+            gradientView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: gradientView.trailingAnchor),
+            gradientView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
             articleTitleTopAnchor,
             articleTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10.0),

@@ -41,7 +41,7 @@ extension ArticleListViewController: UICollectionViewDelegate {
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let position = scrollView.contentOffset.y
-        let collectionViewPosition = articleCollectionView.contentSize.height - scrollView.frame.height - 100
+        let collectionViewPosition = articleCollectionView.contentSize.height - scrollView.frame.height - 200
         
         if position > collectionViewPosition {
             viewModel.appendNews()
@@ -61,11 +61,13 @@ extension ArticleListViewController {
     
     private func makeCellRegistration() -> CellRegistration {
         CellRegistration { [viewModel] cell, indexPath, itemIdentifier in
+            cell.itemIdentifier = itemIdentifier
             let article = viewModel.articlesStorage[indexPath.item]
             cell.configure(with: article.title)
             guard let urlToImage = article.urlToImage else { return }
             Task {
                 let image = try? await ImageDownloader.shared.loadImage(for: urlToImage)
+                guard cell.itemIdentifier == itemIdentifier else { return }
                 cell.configure(with: image)
             }
         }
@@ -141,7 +143,7 @@ extension ArticleListViewController {
     
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
     
-    private typealias CellRegistration = UICollectionView.CellRegistration<ArticleListViewCell, Item>
+    private typealias CellRegistration = UICollectionView.CellRegistration<ArticleListViewCell<Article.ID>, Item>
 }
 
 extension ArticleListViewController: UICollectionViewDataSourcePrefetching {
