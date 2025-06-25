@@ -61,7 +61,13 @@ extension ArticleListViewController {
     
     private func makeCellRegistration() -> CellRegistration {
         CellRegistration { [viewModel] cell, indexPath, itemIdentifier in
-            cell.configure(with: viewModel.articlesStorage[indexPath.row])
+            let article = viewModel.articlesStorage[indexPath.item]
+            cell.configure(with: article.title)
+            guard let urlToImage = article.urlToImage else { return }
+            Task {
+                let image = try? await ImageDownloader.shared.loadImage(for: urlToImage)
+                cell.configure(with: image)
+            }
         }
     }
     
@@ -85,11 +91,12 @@ extension ArticleListViewController {
     private func setupCommon() {
         title = "Articles"
         articleCollectionView.delegate = self
+        articleCollectionView.prefetchDataSource = self
         articleCollectionView.dataSource = dataSource
     }
     
     private func showAlert(message: String) {
-        guard presentingViewController == nil else { return }
+        guard presentedViewController == nil else { return }
         let alert = UIAlertController(title: "Error occurred", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .cancel))
         self.present(alert, animated: true)
@@ -135,4 +142,21 @@ extension ArticleListViewController {
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
     
     private typealias CellRegistration = UICollectionView.CellRegistration<ArticleListViewCell, Item>
+}
+
+extension ArticleListViewController: UICollectionViewDataSourcePrefetching {
+    
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        for indexPath in indexPaths {
+            guard let url = viewModel.articlesStorage[indexPath.item].urlToImage else { continue }
+            Task { try await ImageDownloader.shared.loadImage(for: url) }
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+        for indexPath in indexPaths {
+            guard let url = viewModel.articlesStorage[indexPath.item].urlToImage else { continue }
+            ImageDownloader.shared.cancelImageLoadingIfNeeded(for: url)
+        }
+    }
 }

@@ -13,6 +13,8 @@ final class ArticleViewController: UIViewController {
     private let articleScrollView = ArticleScrollView()
     private var article: Article?
     
+    private var imageTask: Task<Void, Never>? = nil
+    
     init(article: Article) {
         self.article = article
         super.init(nibName: nil, bundle: nil)
@@ -32,6 +34,10 @@ final class ArticleViewController: UIViewController {
         articleScrollView.textView.delegate = self
         configureArticle()
     }
+    
+    deinit {
+        imageTask?.cancel()
+    }
 }
 
 extension ArticleViewController {
@@ -50,7 +56,9 @@ extension ArticleViewController {
         guard let article else { preconditionFailure("Article can't be nil, but nil found.") }
         
         if let url = article.urlToImage {
-            articleScrollView.articleImageView.setImage(url: url)
+            imageTask = Task {
+                try? await articleScrollView.articleImageView.image = ImageDownloader.shared.loadImage(for: url)
+            }
         }
         
         articleScrollView.articleTitleLabel.text = article.title

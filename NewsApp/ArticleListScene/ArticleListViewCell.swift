@@ -51,11 +51,14 @@ final class ArticleListViewCell: UICollectionViewCell {
 
 extension ArticleListViewCell {
     
-    func configure(with article: Article) {
-        if let url = article.urlToImage {
-            articleImageView.setImage(url: url)
+    func configure(with text: String) {
+        articleTitle.text = text
+    }
+    
+    func configure(with image: UIImage?) {
+        UIView.transition(with: articleImageView, duration: CATransaction.animationDuration(), options: .curveEaseInOut) {
+            self.articleImageView.image = image
         }
-        articleTitle.text = article.title
     }
 }
 
