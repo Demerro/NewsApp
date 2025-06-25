@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SafariServices
 
 final class ArticleViewController: UIViewController {
     
@@ -40,8 +41,9 @@ extension ArticleViewController {
             assertionFailure("Article URL is nil. Unable to open the full text of the news.")
             return
         }
-        let viewController = ArticleTextViewController(articleURL: url)
-        navigationController?.pushViewController(viewController, animated: true)
+        let viewController = SFSafariViewController(url: url)
+        viewController.preferredControlTintColor = .tintColor
+        present(viewController, animated: true)
     }
     
     private func configureArticle() {
