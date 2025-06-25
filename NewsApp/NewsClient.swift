@@ -11,76 +11,31 @@ import OSLog
 
 struct NewsClient {
     
-    init() {
-        Task {
-            do {
-                try await K.loadAPIKeys()
-            } catch {
-                Logger.newsClient.error("Failed to load API Keys: \(error)")
-            }
-        }
-    }
-    
-    enum Error: LocalizedError {
-        case clientOrTransport(URLError)
-        case server(HTTPURLResponse)
-        case decoding(DecodingError)
-        case unknown
-        
-        var errorDescription: String? {
-            switch self {
-            case .clientOrTransport(let urlError):
-                return urlError.localizedDescription
-            case .server(let response):
-                return "The server has encountered a recovery problem that it does not know how to handle. Code \(response.statusCode)."
-            case .decoding(let decodingError):
-                return "Decoding error: \(decodingError.localizedDescription)"
-            case .unknown:
-                return "Unknown error."
-            }
-        }
-    }
-    
-    enum EndPoint {
-        static let baseURL = "https://newsapi.org/v2"
-        static let maxArticles = 20
-        
-        case news(String)
-        
-        var url: URL {
-            switch self {
-            case .news(let keyword):
-                let queryItems = [
-                    URLQueryItem(name: "q", value: keyword),
-                    URLQueryItem(name: "pageSize", value: String(NewsClient.EndPoint.maxArticles)),
-                    URLQueryItem(name: "apiKey", value: K.APIKeys.newsAPIKey)
-                ]
-                
-                var components = URLComponents(string: NewsClient.EndPoint.baseURL + "/everything")!
-                components.queryItems = queryItems
-                
-                return components.url!
-            }
-        }
-    }
-    
     private let decoder: JSONDecoder = {
         $0.dateDecodingStrategy = .iso8601
         return $0
     }(JSONDecoder())
     
+    private let keyLoadingTask = Task {
+        do {
+            try await K.loadAPIKeys()
+        } catch {
+            Logger.newsClient.error("Failed to load API Keys: \(error)")
+        }
+    }
+}
+
+extension NewsClient {
+    
     func getArticles(about keyword: String) -> AnyPublisher<[Article], Swift.Error> {
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .returnCacheDataElseLoad
+        config.waitsForConnectivity = true
         
         return Future { promise in
             Task {
-                do {
-                    try await K.loadAPIKeys()
-                    promise(.success(Void()))
-                } catch {
-                    assertionFailure("Failed to load API key.")
-                }
+                await keyLoadingTask.value
+                promise(.success(Void()))
             }
         }
         .flatMap {
@@ -115,7 +70,55 @@ struct NewsClient {
         .map(\.articles)
         .eraseToAnyPublisher()
     }
+}
+
+extension NewsClient {
     
+    enum EndPoint {
+        static let baseURL = "https://newsapi.org/v2"
+        static let maxArticles = 20
+        
+        case news(String)
+        
+        var url: URL {
+            switch self {
+            case .news(let keyword):
+                let queryItems = [
+                    URLQueryItem(name: "q", value: keyword),
+                    URLQueryItem(name: "pageSize", value: String(NewsClient.EndPoint.maxArticles)),
+                    URLQueryItem(name: "apiKey", value: K.APIKeys.newsAPIKey)
+                ]
+                
+                var components = URLComponents(string: NewsClient.EndPoint.baseURL + "/everything")!
+                components.queryItems = queryItems
+                
+                return components.url!
+            }
+        }
+    }
+}
+
+extension NewsClient {
+    
+    enum Error: LocalizedError {
+        case clientOrTransport(URLError)
+        case server(HTTPURLResponse)
+        case decoding(DecodingError)
+        case unknown
+        
+        var errorDescription: String? {
+            switch self {
+            case .clientOrTransport(let urlError):
+                return urlError.localizedDescription
+            case .server(let response):
+                return "The server has encountered a recovery problem that it does not know how to handle. Code \(response.statusCode)."
+            case .decoding(let decodingError):
+                return "Decoding error: \(decodingError.localizedDescription)"
+            case .unknown:
+                return "Unknown error."
+            }
+        }
+    }
 }
 
 extension Logger {
