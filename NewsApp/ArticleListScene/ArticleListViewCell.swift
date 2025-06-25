@@ -33,6 +33,8 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
         return $0
     }(LayerView<CAGradientLayer>(frame: .zero))
     
+    private var resizingTask: Task<Void, Never>? = nil
+    
     override var isHighlighted: Bool {
         didSet {
             let animator = UIViewPropertyAnimator(duration: 0.5, dampingRatio: 0.8)
@@ -59,6 +61,10 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    deinit {
+        resizingTask?.cancel()
+    }
 }
 
 extension ArticleListViewCell {
@@ -68,8 +74,18 @@ extension ArticleListViewCell {
     }
     
     func configure(with image: UIImage?) {
-        UIView.transition(with: articleImageView, duration: CATransaction.animationDuration(), options: .curveEaseInOut) {
-            self.articleImageView.image = image
+        resizingTask?.cancel()
+        if let cgImage = image?.cgImage {
+            resizingTask = Task {
+                let image = UIImage(cgImage: cgImage, scale: traitCollection.displayScale, orientation: .up)
+                let thumbnail = await image.byPreparingThumbnail(ofSize: articleImageView.bounds.size)
+                let resultImage = await thumbnail?.byPreparingForDisplay()
+                UIView.transition(with: articleImageView, duration: CATransaction.animationDuration(), options: .curveEaseInOut) {
+                    self.articleImageView.image = resultImage
+                }
+            }
+        } else {
+            articleImageView.image = nil
         }
     }
 }
