@@ -17,6 +17,7 @@ final class ArticleListViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private let articleCollectionView: UICollectionView = {
+        $0.delaysContentTouches = false
         return $0
     }(UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout()))
     

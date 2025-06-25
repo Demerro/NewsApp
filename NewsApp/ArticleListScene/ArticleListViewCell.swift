@@ -33,6 +33,16 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
         return $0
     }(LayerView<CAGradientLayer>(frame: .zero))
     
+    override var isHighlighted: Bool {
+        didSet {
+            let animator = UIViewPropertyAnimator(duration: 0.5, dampingRatio: 0.8)
+            animator.addAnimations { [self] in
+                transform = isHighlighted ? CGAffineTransform(scaleX: 0.95, y: 0.95) : .identity
+            }
+            animator.startAnimation()
+        }
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         itemIdentifier = nil
