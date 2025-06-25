@@ -15,7 +15,7 @@ struct Article {
     let id = UUID()
     let source: String
     let title: String
-    let description: String
+    let description: String?
     let url: URL
     let urlToImage: URL?
     let publishedDate: Date
@@ -27,7 +27,7 @@ extension Article: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         source = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .source).decode(String.self, forKey: .name)
         title = try container.decode(String.self, forKey: .title)
-        description = try container.decode(String.self, forKey: .description)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
         url = try container.decode(URL.self, forKey: .url)
         urlToImage = try container.decodeIfPresent(URL.self, forKey: .urlToImage)
         publishedDate = try container.decode(Date.self, forKey: .publishedAt)
@@ -42,9 +42,6 @@ extension Article: Decodable {
         case urlToImage
         case publishedAt
     }
-}
-
-extension Article: CustomStringConvertible {
 }
 
 extension Article: Hashable {

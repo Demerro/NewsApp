@@ -8,6 +8,9 @@
 import Foundation
 
 enum K {
+    
+    private static let decoder = PropertyListDecoder()
+    
     static func loadAPIKeys() async throws {
         let request = NSBundleResourceRequest(tags: ["API Keys"])
         try await request.beginAccessingResources()
@@ -15,7 +18,7 @@ enum K {
         let url = Bundle.main.url(forResource: "API Keys", withExtension: "plist")!
         let data = try Data(contentsOf: url)
         
-        APIKeys.storage = try PropertyListDecoder().decode([String: String].self, from: data)
+        APIKeys.storage = try decoder.decode([String: String].self, from: data)
         
         request.endAccessingResources()
     }

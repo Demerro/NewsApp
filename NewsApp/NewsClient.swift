@@ -16,7 +16,7 @@ struct NewsClient {
             do {
                 try await K.loadAPIKeys()
             } catch {
-                Logger().error("Failed to load API Keys: \(error)")
+                Logger.newsClient.error("Failed to load API Keys: \(error)")
             }
         }
     }
@@ -24,6 +24,7 @@ struct NewsClient {
     enum Error: LocalizedError {
         case clientOrTransport(URLError)
         case server(HTTPURLResponse)
+        case decoding(DecodingError)
         case unknown
         
         var errorDescription: String? {
@@ -32,6 +33,8 @@ struct NewsClient {
                 return urlError.localizedDescription
             case .server(let response):
                 return "The server has encountered a recovery problem that it does not know how to handle. Code \(response.statusCode)."
+            case .decoding(let decodingError):
+                return "Decoding error: \(decodingError.localizedDescription)"
             case .unknown:
                 return "Unknown error."
             }
@@ -95,17 +98,27 @@ struct NewsClient {
             
             return data
         }
+        .decode(type: News.self, decoder: decoder)
         .mapError { error -> NewsClient.Error in
             switch error {
             case is URLError:
+                Logger.newsClient.error("Network error: \(error)")
                 return NewsClient.Error.clientOrTransport(error as! URLError)
+            case is DecodingError:
+                Logger.newsClient.error("Decoding error: \(error)")
+                return NewsClient.Error.decoding(error as! DecodingError)
             default:
+                Logger.newsClient.error("Unexpected error: \(error)")
                 return error as? NewsClient.Error ?? .unknown
             }
         }
-        .decode(type: News.self, decoder: decoder)
         .map(\.articles)
         .eraseToAnyPublisher()
     }
     
+}
+
+extension Logger {
+    
+    fileprivate static let newsClient = Logger(subsystem: Bundle.main.bundleIdentifier!, category: "NewsClient")
 }
