@@ -15,6 +15,7 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
+        $0.backgroundColor = .systemGray6
         return $0
     }(UIImageView(frame: .zero))
     

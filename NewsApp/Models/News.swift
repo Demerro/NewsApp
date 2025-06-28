@@ -5,7 +5,7 @@
 //  Created by Nikita Prokhorchuk on 6.02.23.
 //
 
-import Foundation
+import UIKit
 
 struct News: Decodable {
     let articles: [Article]
@@ -19,6 +19,18 @@ struct Article {
     let url: URL
     let urlToImage: URL?
     let publishedDate: Date
+    
+    var image: UIImage?
+    
+    init(source: String, title: String, description: String?, url: URL, urlToImage: URL?, publishedDate: Date, image: UIImage? = nil) {
+        self.source = source
+        self.title = title
+        self.description = description
+        self.url = url
+        self.urlToImage = urlToImage
+        self.publishedDate = publishedDate
+        self.image = image
+    }
 }
 
 extension Article: Decodable {

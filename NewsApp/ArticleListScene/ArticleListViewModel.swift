@@ -10,47 +10,85 @@ import Combine
 
 final class ArticleListViewModel: ObservableObject {
     
-    let topic = ["war", "crime", "finance", "medicine", "bitcoin", "tesla"]
-    var cancellables = Set<AnyCancellable>()
+    private let topic = ["war", "crime", "finance", "medicine", "bitcoin", "tesla"]
     
-    var articlesStorage = [Article]()
-    @Published var articles = [Article]()
-    @Published var errorMessage: String?
+    private var cancellables = Set<AnyCancellable>()
     
-    private let newsClient = NewsClient()
+    let articlesSubject = PassthroughSubject<Void, Never>()
+    var articles = [Article]()
+    private(set) var isLoadingArticles = false
     
+    let errorMessageSubject = CurrentValueSubject<String, Never>("")
+    
+    private let newsClient: NewsClient
+    private let articlesStorageClient: ArticlesStorageClient
+    
+    init(articlesStorageClient: ArticlesStorageClient, newsClient: NewsClient) {
+        self.articlesStorageClient = articlesStorageClient
+        self.newsClient = newsClient
+    }
+}
+
+extension ArticleListViewModel {
+    
+    func restoreCacheArticles() {
+        articlesStorageClient.articlesPublisher
+            .sink { [weak self] in
+                if case let .failure(error) = $0 {
+                    self?.errorMessageSubject.send(error.localizedDescription)
+                }
+            } receiveValue: { [weak self] in
+                guard let self else { return }
+                articles = $0
+                articlesSubject.send(Void())
+            }
+            .store(in: &cancellables)
+    }
+}
+
+extension ArticleListViewModel {
+ 
     private var articlePublisher: AnyPublisher<[Article], Error> {
-        return newsClient.getArticles(about: topic.randomElement()!)
-            .compactMap { $0.isEmpty ? nil : $0 }
+        newsClient.getArticles(about: topic.randomElement()!)
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.isLoadingArticles = false
+            })
             .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
     
     func refreshNews() {
+        guard !isLoadingArticles else { return }
+        isLoadingArticles = true
         articlePublisher
             .sink { [weak self] in
                 if case let .failure(error) = $0 {
-                    self?.errorMessage = error.localizedDescription
+                    self?.errorMessageSubject.send(error.localizedDescription)
                 }
             } receiveValue: { [weak self] in
-                self?.articles = $0
-                self?.articlesStorage = $0
+                guard let self else { return }
+                articles = $0
+                articlesSubject.send(Void())
             }
             .store(in: &cancellables)
     }
     
     func appendNews() {
+        guard !isLoadingArticles else { return }
+        isLoadingArticles = true
         articlePublisher
-            .first()
             .sink { [weak self] in
                 if case let .failure(error) = $0 {
-                    self?.errorMessage = error.localizedDescription
+                    self?.errorMessageSubject.send(error.localizedDescription)
                 }
             } receiveValue: { [weak self] in
-                self?.articlesStorage.append(contentsOf: $0)
-                self?.articles.append(contentsOf: $0)
+                guard let self else { return }
+                articles.append(contentsOf: $0)
+                articlesSubject.send(Void())
             }
             .store(in: &cancellables)
     }
-    
+}
+
+extension ArticleListViewModel: ArticlesStorageClient.DataProvider {
 }

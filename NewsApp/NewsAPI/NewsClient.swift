@@ -28,19 +28,14 @@ struct NewsClient {
 extension NewsClient {
     
     func getArticles(about keyword: String) -> AnyPublisher<[Article], Swift.Error> {
-        let config = URLSessionConfiguration.default
-        config.requestCachePolicy = .returnCacheDataElseLoad
-        config.waitsForConnectivity = true
-        
-        return Future { promise in
+        Future { promise in
             Task {
                 await keyLoadingTask.value
                 promise(.success(Void()))
             }
         }
         .flatMap {
-            URLSession(configuration: config)
-                .dataTaskPublisher(for: EndPoint.news(keyword).url)
+            URLSession.shared.dataTaskPublisher(for: EndPoint.news(keyword).url)
         }
         .tryMap { data, response in
             guard let httpResponse = response as? HTTPURLResponse else {

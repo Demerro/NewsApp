@@ -10,8 +10,6 @@ import Combine
 
 final class ArticleListViewController: UIViewController {
     
-    private let viewModel = ArticleListViewModel()
-    
     private lazy var dataSource = makeDiffableDataSource()
     
     private var cancellables = Set<AnyCancellable>()
@@ -21,6 +19,18 @@ final class ArticleListViewController: UIViewController {
         return $0
     }(UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout()))
     
+    let viewModel: ArticleListViewModel
+    
+    init(viewModel: ArticleListViewModel) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+    
     override func loadView() {
         view = articleCollectionView
     }
@@ -29,6 +39,8 @@ final class ArticleListViewController: UIViewController {
         super.viewDidLoad()
         setupCommon()
         binding()
+        viewModel.restoreCacheArticles()
+        viewModel.refreshNews()
     }
 }
 
@@ -55,7 +67,6 @@ extension ArticleListViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: collectionView.bounds.width - 20, height: 200)
     }
-    
 }
 
 extension ArticleListViewController {
@@ -63,13 +74,19 @@ extension ArticleListViewController {
     private func makeCellRegistration() -> CellRegistration {
         CellRegistration { [viewModel] cell, indexPath, itemIdentifier in
             cell.itemIdentifier = itemIdentifier
-            let article = viewModel.articlesStorage[indexPath.item]
+            let article = viewModel.articles[indexPath.item]
             cell.configure(with: article.title)
-            guard let urlToImage = article.urlToImage else { return }
-            Task {
-                let image = try? await ImageDownloader.shared.loadImage(for: urlToImage)
-                guard cell.itemIdentifier == itemIdentifier else { return }
+            if let image = article.image {
                 cell.configure(with: image)
+            } else if let urlToImage = article.urlToImage {
+                Task {
+                    let image = try? await ImageDownloader.shared.loadImage(for: urlToImage)
+                    if let image, let index = viewModel.articles.firstIndex(where: { $0.urlToImage == urlToImage }) {
+                        viewModel.articles[index].image = image
+                    }
+                    guard cell.itemIdentifier == itemIdentifier else { return }
+                    cell.configure(with: image)
+                }
             }
         }
     }
@@ -82,6 +99,7 @@ extension ArticleListViewController {
     }
     
     private func updateDataSource(with items: [Item]) {
+        print(#function)
         var snapshot = Snapshot()
         snapshot.appendSections([.main])
         snapshot.appendItems(items)
@@ -95,7 +113,6 @@ extension ArticleListViewController {
         title = "Articles"
         articleCollectionView.delegate = self
         articleCollectionView.prefetchDataSource = self
-        articleCollectionView.dataSource = dataSource
     }
     
     private func showAlert(message: String) {
@@ -112,21 +129,25 @@ extension ArticleListViewController {
         let refreshControl = UIRefreshControl()
         articleCollectionView.refreshControl = refreshControl
         refreshControl.publisher(forEvent: .valueChanged)
-            .sink { [viewModel] in viewModel.refreshNews() }
-            .store(in: &cancellables)
-        
-        viewModel.$articles
-            .sink { [weak self] in
-                refreshControl.endRefreshing()
-                self?.updateDataSource(with: $0.map(\.id))
+            .sink { [viewModel] in
+                viewModel.refreshNews()
             }
             .store(in: &cancellables)
         
-        viewModel.$errorMessage
-            .compactMap { $0 }
-            .sink { [weak self] in
+        viewModel.articlesSubject
+            .sink { [weak self] _ in
+                guard let self else { return }
                 refreshControl.endRefreshing()
-                self?.showAlert(message: $0)
+                updateDataSource(with: viewModel.articles.map(\.id))
+            }
+            .store(in: &cancellables)
+        
+        viewModel.errorMessageSubject
+            .dropFirst()
+            .sink { [weak self] in
+                guard let self else { return }
+                refreshControl.endRefreshing()
+                showAlert(message: $0)
             }
             .store(in: &cancellables)
     }
@@ -151,14 +172,14 @@ extension ArticleListViewController: UICollectionViewDataSourcePrefetching {
     
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            guard let url = viewModel.articlesStorage[indexPath.item].urlToImage else { continue }
+            guard let url = viewModel.articles[indexPath.item].urlToImage else { continue }
             Task { try await ImageDownloader.shared.loadImage(for: url) }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            guard let url = viewModel.articlesStorage[indexPath.item].urlToImage else { continue }
+            guard let url = viewModel.articles[indexPath.item].urlToImage else { continue }
             ImageDownloader.shared.cancelImageLoadingIfNeeded(for: url)
         }
     }
