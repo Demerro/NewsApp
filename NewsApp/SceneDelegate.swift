@@ -25,6 +25,5 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     func sceneDidEnterBackground(_ scene: UIScene) {
         articlesStorageClient.saveArticlesSubject.send(Void())
-        articlesStorageClient.saveArticlesSubject.send(completion: .finished)
     }
 }

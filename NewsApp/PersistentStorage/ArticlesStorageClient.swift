@@ -50,7 +50,7 @@ extension ArticlesStorageClient {
                     Key.image.rawValue: article.image as Any,
                 ]
             }
-            .collect()
+            .collect(20)
             .tryMap { [self] insertDictionaries in
                 let deleteRequest = NSBatchDeleteRequest(fetchRequest: ArticleEntity.fetchRequest())
                 let batchRequest = NSBatchInsertRequest(entity: ArticleEntity.entity(), objects: insertDictionaries)
