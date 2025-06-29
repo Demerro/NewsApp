@@ -11,19 +11,22 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     var window: UIWindow?
     
-    private let articlesStorageClient = ArticlesStorageClient()
+    var dependencyContainer: AppDependencyContainer?
+    
+    var coordinator: AppCoordinator?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         let window = UIWindow(windowScene: scene as! UIWindowScene)
-        let viewModel = ArticleListViewModel(articlesStorageClient: articlesStorageClient, newsClient: NewsClient())
-        let articleListViewController = ArticleListViewController(viewModel: viewModel)
-        articlesStorageClient.dataProvider = viewModel
-        window.rootViewController = UINavigationController(rootViewController: articleListViewController)
+        let dependencyContainer = AppDependencyContainer()
+        let coordinator = dependencyContainer.makeCoordinator()
+        window.rootViewController = coordinator.rootViewController
         window.makeKeyAndVisible()
         self.window = window
+        self.dependencyContainer = dependencyContainer
+        self.coordinator = coordinator
     }
     
     func sceneDidEnterBackground(_ scene: UIScene) {
-        articlesStorageClient.saveArticlesSubject.send(Void())
+        dependencyContainer?.articlesStorageClient.saveArticlesSubject.send(Void())
     }
 }

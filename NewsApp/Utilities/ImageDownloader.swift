@@ -9,12 +9,7 @@ import UIKit
 
 final class ImageDownloader {
     
-    static let shared = ImageDownloader()
-    
     private let cache = NSCache<NSURL, CacheEntryWrapper>()
-    
-    private init() {
-    }
 }
 
 extension ImageDownloader {

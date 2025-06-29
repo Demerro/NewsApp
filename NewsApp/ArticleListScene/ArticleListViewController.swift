@@ -48,11 +48,7 @@ extension ArticleListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        let article = viewModel.articles[indexPath.item]
-        let viewController = ArticleViewController(article: article)
-        navigationController?.pushViewController(viewController, animated: true)
-        viewModel.incrementWatchCounter(for: article.url)
-        reconfigureItems([article.id])
+        viewModel.selectArticle(at: indexPath.item)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -156,6 +152,12 @@ extension ArticleListViewController {
                 guard let self else { return }
                 refreshControl.endRefreshing()
                 showAlert(message: $0)
+            }
+            .store(in: &cancellables)
+        
+        viewModel.didSelectArticleSubject
+            .sink { [weak self] id in
+                self?.reconfigureItems([id])
             }
             .store(in: &cancellables)
     }

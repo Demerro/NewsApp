@@ -19,14 +19,20 @@ final class ArticleListViewModel: ObservableObject {
     private(set) var articles = [Article]()
     private(set) var isLoadingArticles = false
     
+    let didSelectArticleSubject = PassthroughSubject<Article.ID, Never>()
+    
     let errorMessageSubject = CurrentValueSubject<String, Never>("")
+    
+    var onShowArticle: ((Article) -> Void)? = nil
     
     private let newsClient: NewsClient
     private let articlesStorageClient: ArticlesStorageClient
+    private let imageDownloader: ImageDownloader
     
-    init(articlesStorageClient: ArticlesStorageClient, newsClient: NewsClient) {
+    init(articlesStorageClient: ArticlesStorageClient, newsClient: NewsClient, imageDownloader: ImageDownloader) {
         self.articlesStorageClient = articlesStorageClient
         self.newsClient = newsClient
+        self.imageDownloader = imageDownloader
     }
 }
 
@@ -48,7 +54,7 @@ extension ArticleListViewModel {
 
 extension ArticleListViewModel {
     
-    func incrementWatchCounter(for url: URL) {
+    private func incrementWatchCounter(for url: URL) {
         for index in articles.indices where articles[index].url == url {
             articles[index].watchCounter += 1
         }
@@ -133,14 +139,24 @@ extension ArticleListViewModel {
     
     func loadImage(for index: Int) async -> UIImage? {
         guard let urlToImage = articles[index].urlToImage else { return nil }
-        let image = try? await ImageDownloader.shared.loadImage(for: urlToImage)
+        let image = try? await imageDownloader.loadImage(for: urlToImage)
         articles[index].image = image
         return image
     }
     
     func cancelImageLoading(for index: Int) {
         guard let urlToImage = articles[index].urlToImage else { return }
-        ImageDownloader.shared.cancelImageLoadingIfNeeded(for: urlToImage)
+        imageDownloader.cancelImageLoadingIfNeeded(for: urlToImage)
+    }
+}
+
+extension ArticleListViewModel {
+    
+    func selectArticle(at index: Int) {
+        let article = articles[index]
+        onShowArticle?(article)
+        incrementWatchCounter(for: article.url)
+        didSelectArticleSubject.send(article.id)
     }
 }
 

@@ -6,23 +6,24 @@
 //
 
 import UIKit
-import SafariServices
+import Combine
 
 final class ArticleViewController: UIViewController {
     
-    let articleScrollView = ArticleScrollView()
-    private var article: Article?
-    
     private var imageTask: Task<Void, Never>? = nil
     
-    init(article: Article) {
-        self.article = article
+    let articleScrollView = ArticleScrollView()
+    
+    let viewModel: ArticleViewModel
+    
+    init(viewModel: ArticleViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
     
     @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        fatalError()
     }
     
     override func loadView() {
@@ -42,25 +43,13 @@ final class ArticleViewController: UIViewController {
 
 extension ArticleViewController {
     
-    private func openFullNews() {
-        guard let url = article?.url else {
-            assertionFailure("Article URL is nil. Unable to open the full text of the news.")
-            return
-        }
-        let viewController = SFSafariViewController(url: url)
-        viewController.preferredControlTintColor = .tintColor
-        present(viewController, animated: true)
-    }
-    
     private func configureArticle() {
-        guard let article else { preconditionFailure("Article can't be nil, but nil found.") }
-        
-        imageTask?.cancel()
+        let article = viewModel.article
         imageTask = Task {
             let articleImage: UIImage? = if let image = article.image {
                 image
             } else if let url = article.urlToImage {
-                try? await ImageDownloader.shared.loadImage(for: url)
+                await viewModel.loadImage(for: url)
             } else {
                 nil
             }
@@ -75,7 +64,6 @@ extension ArticleViewController {
                 articleScrollView.articleImageView.image = nil
             }
         }
-        
         articleScrollView.articleTitleLabel.text = article.title
         articleScrollView.articleDescriptionLabel.text = article.description
         articleScrollView.articleSourceLabel.text = "- \(article.source)"
@@ -90,7 +78,7 @@ extension ArticleViewController {
 extension ArticleViewController: UITextViewDelegate {
     
     func textView(_ textView: UITextView, shouldInteractWith URL: URL, in characterRange: NSRange) -> Bool {
-        openFullNews()
+        viewModel.openFullNews()
         return false
     }
 }
