@@ -19,8 +19,8 @@ extension ArticleEntity {
 
     @NSManaged public var articleDescription: String?
     @NSManaged public var image: UIImage?
-    @NSManaged public var publishedDate: Date?
-    @NSManaged public var source: String?
-    @NSManaged public var title: String?
-    @NSManaged public var url: URL?
+    @NSManaged public var publishedDate: Date
+    @NSManaged public var source: String
+    @NSManaged public var title: String
+    @NSManaged public var url: URL
 }

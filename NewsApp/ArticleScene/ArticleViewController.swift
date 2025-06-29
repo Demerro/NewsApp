@@ -10,7 +10,7 @@ import SafariServices
 
 final class ArticleViewController: UIViewController {
     
-    private let articleScrollView = ArticleScrollView()
+    let articleScrollView = ArticleScrollView()
     private var article: Article?
     
     private var imageTask: Task<Void, Never>? = nil
@@ -55,9 +55,24 @@ extension ArticleViewController {
     private func configureArticle() {
         guard let article else { preconditionFailure("Article can't be nil, but nil found.") }
         
-        if let url = article.urlToImage {
-            imageTask = Task {
-                try? await articleScrollView.articleImageView.image = ImageDownloader.shared.loadImage(for: url)
+        imageTask?.cancel()
+        imageTask = Task {
+            let articleImage: UIImage? = if let image = article.image {
+                image
+            } else if let url = article.urlToImage {
+                try? await ImageDownloader.shared.loadImage(for: url)
+            } else {
+                nil
+            }
+            if let cgImage = articleImage?.cgImage {
+                let image = UIImage(cgImage: cgImage, scale: traitCollection.displayScale, orientation: .up)
+                let thumbnail = await image.byPreparingThumbnail(ofSize: articleScrollView.articleImageView.bounds.size)
+                let resultImage = await thumbnail?.byPreparingForDisplay()
+                UIView.transition(with: articleScrollView.articleImageView, duration: CATransaction.animationDuration(), options: .curveEaseInOut) { [articleScrollView] in
+                    articleScrollView.articleImageView.image = resultImage
+                }
+            } else {
+                articleScrollView.articleImageView.image = nil
             }
         }
         

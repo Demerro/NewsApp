@@ -48,8 +48,11 @@ extension ArticleListViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        let viewController = ArticleViewController(article: viewModel.articles[indexPath.row])
+        let article = viewModel.articles[indexPath.item]
+        let viewController = ArticleViewController(article: article)
         navigationController?.pushViewController(viewController, animated: true)
+        viewModel.incrementWatchCounter(for: article.url)
+        reconfigureItems([article.id])
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -72,20 +75,20 @@ extension ArticleListViewController: UICollectionViewDelegateFlowLayout {
 extension ArticleListViewController {
     
     private func makeCellRegistration() -> CellRegistration {
-        CellRegistration { [viewModel] cell, indexPath, itemIdentifier in
+        CellRegistration { [unowned self] cell, indexPath, itemIdentifier in
             cell.itemIdentifier = itemIdentifier
             let article = viewModel.articles[indexPath.item]
-            cell.configure(with: article.title)
+            var configuration = ArticleListViewCell<Item>.Configuration()
+            configuration.text = article.title
+            configuration.watchCounter = article.watchCounter
             if let image = article.image {
-                cell.configure(with: image)
-            } else if let urlToImage = article.urlToImage {
+                configuration.image = image
+                cell.apply(configuration: configuration)
+            } else {
+                cell.apply(configuration: configuration)
                 Task {
-                    let image = try? await ImageDownloader.shared.loadImage(for: urlToImage)
-                    if let image, let index = viewModel.articles.firstIndex(where: { $0.urlToImage == urlToImage }) {
-                        viewModel.articles[index].image = image
-                    }
-                    guard cell.itemIdentifier == itemIdentifier else { return }
-                    cell.configure(with: image)
+                    configuration.image = await viewModel.loadImage(for: indexPath.item)
+                    cell.apply(configuration: configuration)
                 }
             }
         }
@@ -99,10 +102,15 @@ extension ArticleListViewController {
     }
     
     private func updateDataSource(with items: [Item]) {
-        print(#function)
         var snapshot = Snapshot()
         snapshot.appendSections([.main])
         snapshot.appendItems(items)
+        dataSource.apply(snapshot)
+    }
+    
+    private func reconfigureItems(_ items: [Item]) {
+        var snapshot = dataSource.snapshot()
+        snapshot.reconfigureItems(items)
         dataSource.apply(snapshot)
     }
 }
@@ -165,22 +173,20 @@ extension ArticleListViewController {
     
     private typealias Snapshot = NSDiffableDataSourceSnapshot<Section, Item>
     
-    private typealias CellRegistration = UICollectionView.CellRegistration<ArticleListViewCell<Article.ID>, Item>
+    private typealias CellRegistration = UICollectionView.CellRegistration<ArticleListViewCell<Item>, Item>
 }
 
 extension ArticleListViewController: UICollectionViewDataSourcePrefetching {
     
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            guard let url = viewModel.articles[indexPath.item].urlToImage else { continue }
-            Task { try await ImageDownloader.shared.loadImage(for: url) }
+            Task { await viewModel.loadImage(for: indexPath.item) }
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
         for indexPath in indexPaths {
-            guard let url = viewModel.articles[indexPath.item].urlToImage else { continue }
-            ImageDownloader.shared.cancelImageLoadingIfNeeded(for: url)
+            viewModel.cancelImageLoading(for: indexPath.item)
         }
     }
 }

@@ -9,20 +9,27 @@ import UIKit
 
 final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell {
     
-    var itemIdentifier: ItemIdentifier? = nil
+    var itemIdentifier: ItemIdentifier?
     
     private let articleImageView: UIImageView = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
-        $0.backgroundColor = .systemGray6
+        $0.backgroundColor = .systemGray5
         return $0
     }(UIImageView(frame: .zero))
     
-    private let articleTitle: UILabel = {
+    private let articleTitleLabel: UILabel = {
         $0.translatesAutoresizingMaskIntoConstraints = false
         $0.numberOfLines = 0
-        $0.font = .preferredFont(forTextStyle: .body, compatibleWith: UITraitCollection(legibilityWeight: .bold))
+        $0.font = .preferredFont(forTextStyle: .headline)
+        $0.textColor = .white
+        return $0
+    }(UILabel(frame: .zero))
+    
+    private let watchCounterLabel: UILabel = {
+        $0.translatesAutoresizingMaskIntoConstraints = false
+        $0.font = .preferredFont(forTextStyle: .subheadline)
         $0.textColor = .white
         return $0
     }(UILabel(frame: .zero))
@@ -46,12 +53,6 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
         }
     }
     
-    override func prepareForReuse() {
-        super.prepareForReuse()
-        itemIdentifier = nil
-        articleImageView.image = nil
-    }
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupCommon()
@@ -63,6 +64,11 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        itemIdentifier = nil
+    }
+    
     deinit {
         resizingTask?.cancel()
     }
@@ -70,13 +76,13 @@ final class ArticleListViewCell<ItemIdentifier: Hashable>: UICollectionViewCell 
 
 extension ArticleListViewCell {
     
-    func configure(with text: String) {
-        articleTitle.text = text
-    }
-    
-    func configure(with image: UIImage?) {
+    func apply(configuration: Configuration) {
+        articleTitleLabel.text = configuration.text
+        if let watchCounter = configuration.watchCounter {
+            watchCounterLabel.text = "Watched: \(watchCounter)"
+        }
         resizingTask?.cancel()
-        if let cgImage = image?.cgImage {
+        if let cgImage = configuration.image?.cgImage {
             resizingTask = Task {
                 let image = UIImage(cgImage: cgImage, scale: traitCollection.displayScale, orientation: .up)
                 let thumbnail = await image.byPreparingThumbnail(ofSize: articleImageView.bounds.size)
@@ -99,12 +105,12 @@ extension ArticleListViewCell {
         
         contentView.addSubview(articleImageView)
         contentView.addSubview(gradientView)
-        contentView.addSubview(articleTitle)
+        contentView.addSubview(articleTitleLabel)
+        contentView.addSubview(watchCounterLabel)
     }
     
     private func setupConstraints() {
-        let articleTitleTopAnchor = articleTitle.topAnchor.constraint(lessThanOrEqualTo: contentView.topAnchor, constant: 10.0)
-        articleTitleTopAnchor.priority = .defaultLow
+        watchCounterLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         NSLayoutConstraint.activate([
             articleImageView.topAnchor.constraint(equalTo: contentView.topAnchor),
             articleImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
@@ -116,10 +122,26 @@ extension ArticleListViewCell {
             contentView.trailingAnchor.constraint(equalTo: gradientView.trailingAnchor),
             gradientView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
             
-            articleTitleTopAnchor,
-            articleTitle.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10.0),
-            contentView.trailingAnchor.constraint(equalTo: articleTitle.trailingAnchor, constant: 10.0),
-            contentView.bottomAnchor.constraint(equalTo: articleTitle.bottomAnchor, constant: 10.0),
+            articleTitleLabel.topAnchor.constraint(greaterThanOrEqualToSystemSpacingBelow: contentView.topAnchor, multiplier: 1.0),
+            articleTitleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1.0),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: articleTitleLabel.trailingAnchor, multiplier: 1.0),
+            
+            watchCounterLabel.topAnchor.constraint(equalToSystemSpacingBelow: articleTitleLabel.bottomAnchor, multiplier: 1.0),
+            watchCounterLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: contentView.leadingAnchor, multiplier: 1.0),
+            contentView.trailingAnchor.constraint(equalToSystemSpacingAfter: watchCounterLabel.trailingAnchor, multiplier: 1.0),
+            contentView.bottomAnchor.constraint(equalToSystemSpacingBelow: watchCounterLabel.bottomAnchor, multiplier: 1.0),
         ])
+    }
+}
+
+extension ArticleListViewCell {
+    
+    struct Configuration {
+        var text: String?
+        var watchCounter: Int?
+        var image: UIImage?
+        
+        init() {
+        }
     }
 }

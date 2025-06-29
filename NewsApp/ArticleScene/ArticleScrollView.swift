@@ -19,7 +19,7 @@ final class ArticleScrollView: UIScrollView {
     let articleImageView: UIImageView = {
         $0.contentMode = .scaleAspectFill
         $0.clipsToBounds = true
-        $0.backgroundColor = .systemGray6
+        $0.backgroundColor = .systemGray5
         $0.layer.cornerCurve = .continuous
         $0.layer.cornerRadius = 10.0
         return $0

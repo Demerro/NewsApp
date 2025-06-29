@@ -22,7 +22,9 @@ struct Article {
     
     var image: UIImage?
     
-    init(source: String, title: String, description: String?, url: URL, urlToImage: URL?, publishedDate: Date, image: UIImage? = nil) {
+    var watchCounter = 0
+    
+    init(source: String, title: String, description: String?, url: URL, urlToImage: URL?, publishedDate: Date, image: UIImage? = nil, watchCounter: Int = 0) {
         self.source = source
         self.title = title
         self.description = description
@@ -30,6 +32,7 @@ struct Article {
         self.urlToImage = urlToImage
         self.publishedDate = publishedDate
         self.image = image
+        self.watchCounter = watchCounter
     }
 }
 

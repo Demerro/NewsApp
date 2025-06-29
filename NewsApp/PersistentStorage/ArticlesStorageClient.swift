@@ -13,9 +13,11 @@ final class ArticlesStorageClient {
     
     let saveArticlesSubject = PassthroughSubject<Void, Never>()
     
+    let watchCounterIncrementalSubject = PassthroughSubject<URL, Never>()
+    
     weak var dataProvider: (any DataProvider)? = nil
     
-    private var saveArticleCancellable: AnyCancellable? = nil
+    private var cancellables = Set<AnyCancellable>()
     
     private let persistentContainer: NSPersistentContainer
     
@@ -28,14 +30,15 @@ final class ArticlesStorageClient {
                 saveArticlesSubject?.send(completion: .finished)
             }
         }
-        binding()
+        bindSaveArticlesSubject()
+        bindWatchCounterIncrementalSubject()
     }
 }
 
 extension ArticlesStorageClient {
     
-    private func binding() {
-        saveArticleCancellable = saveArticlesSubject
+    private func bindSaveArticlesSubject() {
+        saveArticlesSubject
             .compactMap { [unowned self] in
                 dataProvider?.articles.suffix(20)
             }
@@ -51,7 +54,7 @@ extension ArticlesStorageClient {
                 ]
             }
             .collect(20)
-            .tryMap { [self] insertDictionaries in
+            .tryMap { [unowned persistentContainer] insertDictionaries in
                 let deleteRequest = NSBatchDeleteRequest(fetchRequest: ArticleEntity.fetchRequest())
                 let batchRequest = NSBatchInsertRequest(entity: ArticleEntity.entity(), objects: insertDictionaries)
                 try persistentContainer.viewContext.execute(deleteRequest)
@@ -66,10 +69,8 @@ extension ArticlesStorageClient {
             }, receiveValue: { _ in
                 Logger.articleStorageClient.info("Successfully saved articles.")
             })
+            .store(in: &cancellables)
     }
-}
-
-extension ArticlesStorageClient {
     
     var articlesPublisher: AnyPublisher<[Article], Error> {
         Future<[ArticleEntity], Error> { [unowned persistentContainer] promise in
@@ -80,9 +81,67 @@ extension ArticlesStorageClient {
                 promise(.failure(error))
             }
         }
-        .flatMap { $0.publisher }
-        .map { Article(source: $0.source!, title: $0.title!, description: $0.description, url: $0.url!, urlToImage: nil, publishedDate: $0.publishedDate!, image: $0.image) }
-        .collect()
+        .flatMap { [unowned self] articleEntities in
+            let publishers = articleEntities.map { articleEntity in
+                watchCounterPublisher(for: articleEntity.url)
+                    .map { watchCounterEntity in
+                        Article(
+                            source: articleEntity.source,
+                            title: articleEntity.title,
+                            description: articleEntity.articleDescription,
+                            url: articleEntity.url,
+                            urlToImage: nil,
+                            publishedDate: articleEntity.publishedDate,
+                            image: articleEntity.image,
+                            watchCounter: Int(watchCounterEntity?.count ?? 0)
+                        )
+                    }
+            }
+            return Publishers.MergeMany(publishers).collect()
+        }
+        .eraseToAnyPublisher()
+    }
+}
+
+extension ArticlesStorageClient {
+    
+    private func bindWatchCounterIncrementalSubject() {
+        watchCounterIncrementalSubject
+            .tryMap { [unowned persistentContainer] url in
+                let fetchRequest = WatchCounterEntity.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "url == %@", url as NSURL)
+                fetchRequest.fetchLimit = 1
+                fetchRequest.resultType = .managedObjectResultType
+                if let result = try persistentContainer.viewContext.fetch(fetchRequest).first {
+                    result.count += 1
+                } else {
+                    let watchCounter = WatchCounterEntity(context: persistentContainer.viewContext)
+                    watchCounter.url = url
+                    watchCounter.count = 1
+                }
+                try persistentContainer.viewContext.save()
+            }
+            .sink(receiveCompletion: { [unowned persistentContainer] in
+                if case let .failure(error) = $0 {
+                    Logger.articleStorageClient.error("Failed to update watch counter: \(error)")
+                    persistentContainer.viewContext.rollback()
+                }
+            }, receiveValue: { _ in
+            })
+            .store(in: &cancellables)
+    }
+    
+    func watchCounterPublisher(for url: URL) -> AnyPublisher<WatchCounterEntity?, Error> {
+        Future<WatchCounterEntity?, Error> { [unowned persistentContainer] promise in
+            let fetchRequest = WatchCounterEntity.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "url == %@", url as NSURL)
+            fetchRequest.fetchLimit = 1
+            do {
+                promise(.success(try persistentContainer.viewContext.fetch(fetchRequest).first))
+            } catch {
+                promise(.failure(error))
+            }
+        }
         .eraseToAnyPublisher()
     }
 }
