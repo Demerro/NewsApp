@@ -84,6 +84,7 @@ extension ArticleListViewController {
                 cell.apply(configuration: configuration)
                 Task {
                     configuration.image = await viewModel.loadImage(for: indexPath.item)
+                    guard cell.itemIdentifier == itemIdentifier else { return }
                     cell.apply(configuration: configuration)
                 }
             }
